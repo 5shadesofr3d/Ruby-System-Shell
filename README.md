@@ -6,7 +6,7 @@ A ruby application which mimic's the linux command line shell
 
 Please follow this style guide when writing your code:
 
-```
+```ruby
 # filenames should be all lower case with underscores representing spaces
 # eg. quick_style_guide.rb
 
