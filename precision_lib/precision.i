@@ -10,7 +10,7 @@
 
 %typemap(in) std::function<void()>
 {
-	$1 = []() { rb_funcall($input, rb_intern("call"), 0); };
+	$1 = [argv]() { rb_funcall($input, rb_intern("call"), 0); };
 }
 
 void timer(std::uint64_t delay_s, std::function<void()> callback);

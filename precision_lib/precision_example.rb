@@ -6,8 +6,23 @@ require_relative 'precision'
 # make
 # ruby precision_example.rb
 
-def print_stuff
-	puts "timer completed"
+def print_timer
+	puts "timer_s completed"
 end
 
-Precision::timer_ms(500, &print_stuff)
+def print_timer_ms
+	puts "timer_ms completed"
+end
+
+def print_timer_us
+	puts "timer_us completed"
+end
+
+def print_timer_ns
+	puts "timer_ns completed"
+end
+
+Precision::timer(1, method(:print_timer))
+Precision::timer_ms(500, method(:print_timer_ms))
+Precision::timer_us(500, method(:print_timer_us))
+Precision::timer_ns(500, method(:print_timer_ns))
