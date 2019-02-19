@@ -11,7 +11,7 @@ class Shell
     @active = false
 
     @commands = {
-      'ls' => ForkCommand.new { puts "listing stuff here!" },
+      'ls' => ForkCommand.new { exec "ls" },
       'exit' => Command.new { self.exit }
     }
 
@@ -34,7 +34,6 @@ class Shell
   def exit
     assert valid?
 
-    puts "in exit"
     @active = false
 
     assert valid?
@@ -49,7 +48,7 @@ class Shell
 
       # TODO: using parser, break input into: command args
       command = input
-      args = [""]
+      args = []
 
       #CHECK VALID HERE
 
@@ -60,9 +59,16 @@ class Shell
   def execute(cmd, *args)
     #Get command from hash map
     # ASSERT VALID_CMD
-    to_call = @commands[cmd]
+    to_call = nil
 
-    puts to_call
+    if @commands.key? cmd
+      to_call = @commands[cmd]
+    else
+      to_call = ForkCommand.new { exec(cmd) }
+    end
+
+    assert to_call.is_a? Command
+
     begin
       id = to_call.execute(*args)
       to_call.wait(id) unless to_call.nonblocking?
