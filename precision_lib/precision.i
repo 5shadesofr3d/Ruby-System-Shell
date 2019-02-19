@@ -8,10 +8,15 @@
 	$1 = (std::uint64_t) NUM2ULL($input);
 }
 
-void timer(std::uint64_t delay_s, void (*callback)());
+%typemap(in) std::function<void()>
+{
+	$1 = []() { rb_funcall($input, rb_intern("call"), 0); };
+}
 
-void timer_ms(std::uint64_t delay_ms, void (*callback)());
+void timer(std::uint64_t delay_s, std::function<void()> callback);
 
-void timer_us(std::uint64_t delay_us, void (*callback)());
+void timer_ms(std::uint64_t delay_ms, std::function<void()> callback);
 
-void timer_ns(std::uint64_t delay_ns, void (*callback)());
+void timer_us(std::uint64_t delay_us, std::function<void()> callback);
+
+void timer_ns(std::uint64_t delay_ns, std::function<void()> callback);

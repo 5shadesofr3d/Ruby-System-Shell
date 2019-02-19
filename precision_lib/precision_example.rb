@@ -1,6 +1,6 @@
 require_relative 'precision'
 
-# setup steps:
+# setup steps: (make sure you have swig, make, and ruby-dev on your PC!)
 # swig -c++ -ruby precision.i
 # ruby gen_makefile.rb
 # make
@@ -10,4 +10,4 @@ def print_stuff
 	puts "timer completed"
 end
 
-Precision::timer(3, print_stuff)
+Precision::timer_ms(500, &print_stuff)
