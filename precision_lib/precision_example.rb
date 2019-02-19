@@ -1,7 +1,13 @@
 require_relative 'precision'
 
+# setup steps:
+# swig -c++ -ruby precision.i
+# ruby gen_makefile.rb
+# make
+# ruby precision_example.rb
+
 def print_stuff
 	puts "timer completed"
 end
 
-Precision::timer(10*1000000000, print_stuff)
+Precision::timer(3, print_stuff)
