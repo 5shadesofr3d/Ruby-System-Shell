@@ -1,33 +1,77 @@
 require "test/unit"
 require_relative 'command.rb'
 require_relative 'shell_commands.rb'
+
 class Shell
   include ShellCommands
+  include Test::Unit::Assertions
 
   def initialize
     #Add command to hash map
-    @commands = {'ls' => Proc.new {list_command}}
-    main
+    @active = false
+
+    @commands = {
+      'ls' => ForkCommand.new { exec "ls" },
+      'exit' => Command.new { self.exit }
+    }
+
+    assert valid?
+  end
+
+  def valid?
+    # TODO: class invariants
+    return true
+  end
+
+  def start
+    # starts the shell
+    assert valid?
+
+    @active = true
+    self.main
+  end
+
+  def exit
+    assert valid?
+
+    @active = false
+
+    assert valid?
   end
 
   def main
     #Main shell loop waiting for input
-    input = ""
-    while not input.eql? "exit"
+    while @active
+      print ">>> "
       input = gets
       input.strip!
+
+      # TODO: using parser, break input into: command args
+      command = input
+      args = []
+
       #CHECK VALID HERE
-      execute(input)
+
+      self.execute(command, args)
     end
   end
 
-  def execute(cmd)
+  def execute(cmd, *args)
     #Get command from hash map
     # ASSERT VALID_CMD
-    to_call = @commands[cmd]
-    puts to_call
+    to_call = nil
+
+    if @commands.key? cmd
+      to_call = @commands[cmd]
+    else
+      to_call = ForkCommand.new { exec(cmd) }
+    end
+
+    assert to_call.is_a? Command
+
     begin
-      to_call.call
+      id = to_call.execute(*args)
+      to_call.wait(id) unless to_call.nonblocking?
     rescue
       #Note: This error should NOT be for when the command is invalid
       # It should only catch here when command execution encounters an error
@@ -37,4 +81,5 @@ class Shell
   end
 end
 
-Shell.new
+shell = Shell.new
+shell.start
