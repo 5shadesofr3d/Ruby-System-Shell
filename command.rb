@@ -1,4 +1,5 @@
 require 'test/unit'
+#require_relative 'fileWatcher'
 
 class Command
 	include Test::Unit::Assertions

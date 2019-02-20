@@ -1,6 +1,7 @@
 require "test/unit"
 require_relative 'command.rb'
 require_relative 'shell_commands.rb'
+require_relative 'file_watch.rb'
 
 class Shell
   include ShellCommands
@@ -10,9 +11,18 @@ class Shell
     #Add command to hash map
     @active = false
 
+    def fileWatch (arg)
+      print "Hello World "
+      for a in arg
+        print a + " "
+      end
+      print "\n"
+    end
+
     @commands = {
       'ls' => ForkCommand.new { exec "ls" },
-      'exit' => Command.new { self.exit }
+      'exit' => Command.new { self.exit },
+      'filewatch' => ForkCommand.new {|args| fileWatch(args)}
     }
 
     assert valid?
@@ -44,11 +54,11 @@ class Shell
     while @active
       print ">>> "
       input = gets
-      input.strip!
+      input = input.split
 
       # TODO: using parser, break input into: command args
-      command = input
-      args = []
+      command = input[0]
+      args = input.drop(1)
 
       #CHECK VALID HERE
 
