@@ -3,6 +3,10 @@
 class FileWatcher
 
   def initialize(args)
-		print args
+		@args = self.args
+    self.checkForErrors
 	end
+
+  def checkForErrors
+  end
 end

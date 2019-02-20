@@ -22,7 +22,7 @@ class Shell
     @commands = {
       'ls' => ForkCommand.new { exec "ls" },
       'exit' => Command.new { self.exit },
-      'filewatch' => ForkCommand.new {|args| fileWatch(args)}
+      'filewatch' => ForkCommand.new {|args| FileWatcher.new(args)}
     }
 
     assert valid?
