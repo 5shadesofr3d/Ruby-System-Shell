@@ -5,10 +5,12 @@ class FileWatcher
   def initialize(args)
 		@args = args
     @argsLength = @args.length
-    @delay = nil
+    @delay = 0
     @command = nil
     @files = nil
     self.checkForErrors
+
+    print @delay
 	end
 
   def checkForErrors
@@ -62,29 +64,18 @@ class FileWatcher
   end
 
   def evalDelay(indexStart, indexFinish)
+    # If multiple args given
+    raise ArgumentError, "Only one argument should be passed after the -t option, when #{indexFinish - indexStart - 1} arguments were given" unless indexFinish - indexStart == 2
 
-    for i in indexStart... indexFinish
-      print @args[i] + " "
-    end
-    print "\n"
+    arg = @args[indexStart + 1]
 
-    # # Check that -t is not the last argument given
-    # raise ArgumentError, "A single, positive, numeric option must be specified after -t (argument was not specified after -t)" unless index + 1 < @argsLength # Error unless 1. Not at end of array.
-    #
-    # # Error if option specified as argument
-    # raise ArgumentError, "A single, positive, numeric option must be specified after -t (argument was not specified after -t, and an option was given instead)" unless @delay # Error unless 1. Not at end of array.
-    #
-    # # There is an argument after -t, time to evaluate...
-    # @delay = @args[index + 1].to_f #to float
-    #
-    # # Error if string is not a positive number
-    # raise ArgumentError, "A single, positive, numeric option must be specified after -t (argument #{@delay} is not a positive number)" unless @delay.to_s == @args[index + 1] and @delay >= 0
-    #
-    # # Error if multiple arguments were specified...
-    # raise ArgumentError, "A single, positive, numeric option must be specified after -t (too many arguments after -t)" unless index + 2 >= @argsLength
-    #
-    # return index + 2
+    # If args given is not a number, or is a number not between 0 and 600...
+    raise ArgumentError, "Argument given after -t (#{arg}) must a positive number between 0 and 600" unless (arg.to_f.to_s == arg or arg.to_i.to_s == arg) and 0 <= arg.to_f and arg.to_f <= 600
+
+    @delay = arg.to_f
   end
+
+
 
   def evalMonitorType(indexStart, indexFinish)
     for i in indexStart... indexFinish
@@ -96,7 +87,7 @@ class FileWatcher
 end
 
 #print ">>> "
-input = "filewatch -f fwefijo fef -d yes -t 123"
+input = "filewatch -f fwefijo fef -d yes"
 input = input.split
 
 # TODO: using parser, break input into: command args
