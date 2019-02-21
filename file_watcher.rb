@@ -24,7 +24,7 @@ class FileWatch
     while true
       for watcher in @watchList
         if watcher.send(@alteration)
-          print "The file '#{watcher.file}' was #{alteration}... the command '#{@commandName}' will execute in #{delay} seconds...\n\n"
+          print "\nThe file '#{watcher.file}' was #{alteration}... the command '#{@commandName}' will execute in #{delay} seconds...\n\n"
           @commandClass.execute(@args)
         end
       end

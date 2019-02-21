@@ -82,7 +82,7 @@ class Shell
 
     begin
       id = to_call.execute(*args)
-      to_call.wait(id) unless to_call.nonblocking?
+      to_call.wait(id) unless !to_call.nonblocking?
     rescue
       #Note: This error should NOT be for when the command is invalid
       # It should only catch here when command execution encounters an error
