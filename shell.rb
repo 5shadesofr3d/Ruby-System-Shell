@@ -1,7 +1,7 @@
 require "test/unit"
 require_relative 'command.rb'
 require_relative 'shell_commands.rb'
-require_relative 'file_watch.rb'
+require_relative 'file_command_parser'
 
 class Shell
   include ShellCommands
@@ -22,7 +22,7 @@ class Shell
     @commands = {
       'ls' => ForkCommand.new { exec "ls" },
       'exit' => Command.new { self.exit },
-      'filewatch' => ForkCommand.new {|args| FileWatcher.new(args)}
+      'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args)}
     }
 
     assert valid?
