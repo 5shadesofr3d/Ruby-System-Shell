@@ -6,9 +6,9 @@ class FileWatch
     if alteration == "-d"
       @alteration = "fileDestroyed?"
     elsif alteration == "-a"
-      @alteration = "fileCreated?"
-    else
       @alteration = "fileChanged?"
+    else
+      @alteration = "fileCreated?"
     end
 
     @watchList = self.createWatchList
@@ -21,7 +21,7 @@ class FileWatch
         end
       end
     end
-  end 
+  end
 
   def createWatchList
     watchList = []
@@ -40,6 +40,10 @@ class Watcher
     @timeAltered = self.calculateLastAlteredTime
     @exists = self.calculateFileExists
 
+  end
+
+  def file
+    return @file
   end
 
   def calculateLastAlteredTime
@@ -83,7 +87,7 @@ class Watcher
 
   def fileChanged?
     oldTime = @timeAltered
-    @timeAltered = self.caculateTimeAltered
+    @timeAltered = self.calculateLastAlteredTime
 
     # No change
     if oldTime == @timeAltered
@@ -93,4 +97,6 @@ class Watcher
     end
   end
 end
+
+
 

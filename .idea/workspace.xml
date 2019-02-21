@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="94822c10-98a1-4f7d-b6ab-c59fd5e26496" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_command_parser.rb" beforeDir="false" afterPath="$PROJECT_DIR$/file_command_parser.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_watchers.rb" beforeDir="false" afterPath="$PROJECT_DIR$/file_watcher.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shell.rb" beforeDir="false" afterPath="$PROJECT_DIR$/shell.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/file_watcher.rb" beforeDir="false" afterPath="$PROJECT_DIR$/file_watcher.rb" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -27,8 +25,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/file_watcher.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="23" column="6" lean-forward="true" selection-start-line="23" selection-start-column="6" selection-end-line="23" selection-end-column="6" />
+            <state relative-caret-position="170">
+              <caret line="10" column="34" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -158,12 +156,12 @@
       <option name="presentableId" value="Default" />
       <updated>1550358072632</updated>
       <workItem from="1550358074417" duration="3234000" />
-      <workItem from="1550691759327" duration="24793000" />
+      <workItem from="1550691759327" duration="25652000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28027000" />
+    <option name="totallyTimeSpent" value="28886000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1056" extended-state="6" />
@@ -249,8 +247,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/file_watcher.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="23" column="6" lean-forward="true" selection-start-line="23" selection-start-column="6" selection-end-line="23" selection-end-column="6" />
+        <state relative-caret-position="170">
+          <caret line="10" column="34" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
         </state>
       </provider>
     </entry>
