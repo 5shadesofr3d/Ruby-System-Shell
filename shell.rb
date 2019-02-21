@@ -20,9 +20,9 @@ class Shell
     end
 
     @commands = {
-      'ls' => ForkCommand.new { exec "ls" },
-      'exit' => Command.new { self.exit },
-      'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args)}
+        'ls' => ForkCommand.new { exec "ls" },
+        'exit' => Command.new { self.exit },
+        'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args, @commands)}
 
     }
 

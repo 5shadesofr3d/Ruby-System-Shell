@@ -46,17 +46,32 @@ class Command
 end
 
 class ForkCommand < Command
+	def initialize(nonblock = false, &block)
+		@nonblock = nonblock
+		@block = block
+		@delay = nil
+
+		assert valid?
+	end
+
 	def execute(*args)
 		# block passed in is the command itself?
 		assert valid?
 
 		pid = Process.fork do
+			if @delay
+				sleep(@delay)
+			end
 			@block.call(*args)
 		end
 
 		assert valid?
 
 		return pid
+	end
+
+	def add_delay(delay)
+		@delay = delay
 	end
 
 	def wait(pid)
@@ -65,26 +80,4 @@ class ForkCommand < Command
 	end
 end
 
-class ForkCommandWithDelay < ForkCommand
-	def initialize(nonblock = false, time, &block)
-		@nonblock = nonblock
-		@block = block
-		@time = time
 
-		assert valid?
-	end
-
-	def execute(*args)
-		# block passed in is the command itself?
-		assert valid?
-
-		pid = Process.fork do
-			sleep(@time)
-			@block.call(*args)
-		end
-
-		assert valid?
-
-		return pid
-	end
-end

@@ -2,7 +2,7 @@ require_relative 'file_watcher.rb'
 
 class FileCommandParser
 
-  def initialize(args)
+  def initialize(args, commands)
 		@args = args
     @argsLength = @args.length
     @delay = 0
@@ -11,6 +11,8 @@ class FileCommandParser
     @monitorType = nil
     @path = Dir.pwd
     @FileWatcher = nil
+    @commands = commands
+    print commands
     self.checkForErrors
     @FileWatcher = FileWatch.new(@monitorType, @delay, @files)
 	end
@@ -95,4 +97,8 @@ input = input.split
 # TODO: using parser, break input into: command args
 command = input[0]
 args = input.drop(1)
-f = FileCommandParser.new(args)
+
+
+
+
+f = FileCommandParser.new(args, commands)
