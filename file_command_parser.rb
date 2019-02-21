@@ -1,4 +1,4 @@
-require_relative 'file_watchers.rb'
+require_relative 'file_watcher.rb'
 
 class FileCommandParser
 
@@ -12,13 +12,7 @@ class FileCommandParser
     @path = Dir.pwd
     @FileWatcher = nil
     self.checkForErrors
-    if @monitorType == "-d"
-      @FileWatcher = FileWatchDestroy.new(@delay, @files)
-    elsif @monitorType == "-a"
-      @FileWatcher = FileWatchAlter.new(@delay, @files)
-    else
-      @FileWatcher = FileWatchCreation(@delay, @files)
-    end
+    @FileWatcher = FileWatch(@monitorType, @delay, @files)
 	end
 
   def checkForErrors
