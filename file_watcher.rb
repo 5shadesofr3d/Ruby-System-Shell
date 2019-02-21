@@ -1,23 +1,31 @@
 class FileWatch
-  def initialize(alteration, duration, files)
-    @duration = duration
+  def initialize(alteration, files, command, delay)
     @files = files
+
+    @commandName = command[0]
+    @commandClass = command[1]
+    @commandClass.add_delay(delay)
+    @args = command[2]
 
     if alteration == "-d"
       @alteration = "fileDestroyed?"
+      alteration = "destroyed"
     elsif alteration == "-a"
       @alteration = "fileChanged?"
+      alteration = "altered"
     else
       @alteration = "fileCreated?"
+      alteration = "created"
     end
 
     @watchList = self.createWatchList
 
+
     while true
       for watcher in @watchList
         if watcher.send(@alteration)
-          #In place of object execution code for now...
-          print "There was a change in #{watcher.file}\n"
+          print "The file '#{watcher.file}' was #{alteration}... the command '#{@commandName}' will execute in #{delay} seconds...\n\n"
+          @commandClass.execute(@args)
         end
       end
     end
@@ -97,6 +105,8 @@ class Watcher
     end
   end
 end
+
+
 
 
 

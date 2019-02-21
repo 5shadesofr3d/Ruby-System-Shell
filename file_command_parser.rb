@@ -1,4 +1,5 @@
 require_relative 'file_watcher.rb'
+require_relative 'command.rb'
 
 class FileCommandParser
 
@@ -9,12 +10,12 @@ class FileCommandParser
     @command = []
     @files = []
     @monitorType = nil
-    @path = Dir.pwd
     @FileWatcher = nil
-    @commands = commands
-    print commands
+    @commandLibrary = self.filterCommands(commands)
+
+
     self.checkForErrors
-    @FileWatcher = FileWatch.new(@monitorType, @delay, @files)
+    @FileWatcher = FileWatch.new(@monitorType, @files, @command, @delay)
 	end
 
   def checkForErrors
@@ -61,6 +62,9 @@ class FileCommandParser
   end
 
   def evalFiles(indexStart, indexFinish)
+    # If no args given...
+    raise ArgumentError, "Files to monitor should be passed after the -f option, when 0 arguments were given" unless indexFinish > indexStart - 1
+
     for i in indexStart... indexFinish + 1
       @files += [@args[i]]
     end
@@ -79,26 +83,48 @@ class FileCommandParser
   end
 
 
-
   def evalMonitorType(monitorType, indexStart, indexFinish)
     @monitorType = monitorType
-    for i in indexStart... indexFinish + 1
-      @command += [@args[i]]
+    # If no args given...
+    raise ArgumentError, "Command to execute should be passed after the #{@monitorType} option, when 0 arguments were given" unless indexFinish > indexStart - 1
+    # If invalid command is given...
+    raise ArgumentError, "The command given (#{@args[indexStart]}) is not part of the user defined library" unless @commandLibrary.key?(@args[indexStart]) and @commandLibrary[@args[indexStart]].class == ForkCommand and @args[indexStart] != 'filewatch'
+    @command += [@args[indexStart]]
+    @command += [@commandLibrary[@command[0]]]
+    @command[2] = ""
+    for i in indexStart + 1... indexFinish + 1
+      @command[1] += @args[i] + " "
     end
-    print "\n"
+  end
+
+  def filterCommands(commands)
+    # Go through each command in the hash map, if it is a normal command (not forked) then get rid of it
+    commands = commands.reject { |k,v| v.class != ForkCommand or k == 'filewatch'}
+
+    # commands.each do |k, v|
+    #   v.add_delay(@delay)
+    # end
+
+    return commands
   end
 
 end
 
-#print ">>> "
-input = "filewatch -f a.rb b -t 12 -d ls"
-input = input.split
+# #print ">>> "
+# input = "filewatch -f a.rb -t 6 -d ls"
+# input = input.split
+#
+# # TODO: using parser, break input into: command args
+# command = input[0]
+# args = input.drop(1)
+#
+# commands = {
+#     'ls' => ForkCommand.new { exec "ls" },
+#     'exit' => Command.new { self.exit },
+#     'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args, commands)}
+#
+# }
+#
+#
+# f = FileCommandParser.new(args, commands)
 
-# TODO: using parser, break input into: command args
-command = input[0]
-args = input.drop(1)
-
-
-
-
-f = FileCommandParser.new(args, commands)
