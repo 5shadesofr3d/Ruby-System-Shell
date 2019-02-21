@@ -6,8 +6,9 @@ class FileWatcher
 		@args = args
     @argsLength = @args.length
     @delay = 0
-    @command = nil
-    @files = nil
+    @command = []
+    @files = []
+    @monitorType = nil
     self.checkForErrors
 
     print @delay
@@ -39,35 +40,34 @@ class FileWatcher
     for index in 0..optionsGiven.length - 1
       # If the last option...
       if index + 1 == optionsGiven.length
-        evalOption(optionsGiven[index], optionsIndex[index], @argsLength)
+        evalOption(optionsGiven[index], optionsIndex[index] + 1, @argsLength - 1)
       else
-        evalOption(optionsGiven[index], optionsIndex[index], optionsIndex[index + 1])
+        evalOption(optionsGiven[index], optionsIndex[index] + 1, optionsIndex[index + 1] - 1)
       end
     end
   end
 
-  def evalOption(optionType, indexStart, indexFinish)
-    if optionType == "-f"
+  def evalOption(monitorType, indexStart, indexFinish)
+    if monitorType == "-f"
       evalFiles(indexStart, indexFinish)
-    elsif optionType == "-t"
+    elsif monitorType == "-t"
       evalDelay(indexStart, indexFinish)
     else
-      evalMonitorType(indexStart, indexFinish)
+      evalMonitorType(monitorType, indexStart, indexFinish)
     end
   end
 
   def evalFiles(indexStart, indexFinish)
-    for i in indexStart... indexFinish
-      print @args[i] + " "
+    for i in indexStart... indexFinish + 1
+      @files += [@args[i]]
     end
-    print "\n"
   end
 
   def evalDelay(indexStart, indexFinish)
     # If multiple args given
-    raise ArgumentError, "Only one argument should be passed after the -t option, when #{indexFinish - indexStart - 1} arguments were given" unless indexFinish - indexStart == 2
+    raise ArgumentError, "Only one argument should be passed after the -t option, when #{indexFinish - indexStart + 1} arguments were given" unless indexFinish == indexStart
 
-    arg = @args[indexStart + 1]
+    arg = @args[indexStart]
 
     # If args given is not a number, or is a number not between 0 and 600...
     raise ArgumentError, "Argument given after -t (#{arg}) must a positive number between 0 and 600" unless (arg.to_f.to_s == arg or arg.to_i.to_s == arg) and 0 <= arg.to_f and arg.to_f <= 600
@@ -77,9 +77,10 @@ class FileWatcher
 
 
 
-  def evalMonitorType(indexStart, indexFinish)
-    for i in indexStart... indexFinish
-      print @args[i] + " "
+  def evalMonitorType(monitorType, indexStart, indexFinish)
+    @monitorType = monitorType
+    for i in indexStart... indexFinish + 1
+      @command += [@args[i]]
     end
     print "\n"
   end
@@ -87,7 +88,7 @@ class FileWatcher
 end
 
 #print ">>> "
-input = "filewatch -f fwefijo fef -d yes"
+input = "filewatch -f file1 file2 folder1 -t 12 -d ls"
 input = input.split
 
 # TODO: using parser, break input into: command args
