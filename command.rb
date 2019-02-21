@@ -64,3 +64,27 @@ class ForkCommand < Command
 		Process.wait(pid)
 	end
 end
+
+class ForkCommandWithDelay < ForkCommand
+	def initialize(nonblock = false, time, &block)
+		@nonblock = nonblock
+		@block = block
+		@time = time
+
+		assert valid?
+	end
+
+	def execute(*args)
+		# block passed in is the command itself?
+		assert valid?
+
+		pid = Process.fork do
+			sleep(@time)
+			@block.call(*args)
+		end
+
+		assert valid?
+
+		return pid
+	end
+end

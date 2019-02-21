@@ -12,7 +12,7 @@ class FileCommandParser
     @path = Dir.pwd
     @FileWatcher = nil
     self.checkForErrors
-    @FileWatcher = FileWatch(@monitorType, @delay, @files)
+    @FileWatcher = FileWatch.new(@monitorType, @delay, @files)
 	end
 
   def checkForErrors
@@ -89,10 +89,10 @@ class FileCommandParser
 end
 
 #print ">>> "
-input = "filewatch -f file1 file2 folder1 -t 12 -d ls"
+input = "filewatch -f a.rb b -t 12 -d ls"
 input = input.split
 
 # TODO: using parser, break input into: command args
 command = input[0]
 args = input.drop(1)
-f = FileWatcher.new(args)
+f = FileCommandParser.new(args)
