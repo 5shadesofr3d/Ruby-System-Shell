@@ -4,92 +4,84 @@ require_relative 'shell_commands.rb'
 require_relative 'file_command_parser'
 
 class Shell
-  include ShellCommands
-  include Test::Unit::Assertions
+	include ShellCommands
+	include Test::Unit::Assertions
 
-  def initialize
-    #Add command to hash map
-    @active = false
+	def initialize
+		#Add command to hash map
+		@active = false
 
-    def fileWatch (arg)
-      print "Hello World "
-      for a in arg
-        print a + " "
-      end
-      print "\n"
-    end
+		@commands = {
+			'ls' => ForkCommand.new { exec "ls" },
+			'exit' => Command.new { self.exit },
+			'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args, @commands)}
 
-    @commands = {
-        'ls' => ForkCommand.new { exec "ls" },
-        'exit' => Command.new { self.exit },
-        'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args, @commands)}
+		}
 
-    }
+		assert valid?
+	end
 
-    assert valid?
-  end
+	def valid?
+		# TODO: class invariants
+		return true
+	end
 
-  def valid?
-    # TODO: class invariants
-    return true
-  end
+	def start
+		# starts the shell
+		assert valid?
 
-  def start
-    # starts the shell
-    assert valid?
+		@active = true
+		self.main
+	end
 
-    @active = true
-    self.main
-  end
+	def exit
+		assert valid?
 
-  def exit
-    assert valid?
+		@active = false
 
-    @active = false
+		assert valid?
+	end
 
-    assert valid?
-  end
+	def main
+		#Main shell loop waiting for input
+		while @active
+			print ">>> "
+			input = gets
+			input = input.split
 
-  def main
-    #Main shell loop waiting for input
-    while @active
-      print ">>> "
-      input = gets
-      input = input.split
+			# TODO: using parser, break input into: command args
+			command = input[0]
+			args = input.drop(1)
 
-      # TODO: using parser, break input into: command args
-      command = input[0]
-      args = input.drop(1)
+			#CHECK VALID HERE
 
-      #CHECK VALID HERE
+			self.execute(command, args)
+		end
+	end
 
-      self.execute(command, args)
-    end
-  end
+	def execute(cmd, *args)
+		#Get command from hash map
+		# ASSERT VALID_CMD
+		to_call = nil
 
-  def execute(cmd, *args)
-    #Get command from hash map
-    # ASSERT VALID_CMD
-    to_call = nil
+		if @commands.key? cmd
+			to_call = @commands[cmd]
+		else
+			to_call = ForkCommand.new { exec(cmd) }
+		end
 
-    if @commands.key? cmd
-      to_call = @commands[cmd]
-    else
-      to_call = ForkCommand.new { exec(cmd) }
-    end
+		assert to_call.is_a? Command
 
-    assert to_call.is_a? Command
-
-    begin
-      id = to_call.execute(*args)
-      to_call.wait(id) unless !to_call.nonblocking?
-    rescue
-      #Note: This error should NOT be for when the command is invalid
-      # It should only catch here when command execution encounters an error
-      # invalid commands should be handled before we are here
-      puts "Command failed to execute, please try again"
-    end
-  end
+		begin
+			id = to_call.execute(*args)
+			to_call.wait(id) unless !to_call.nonblocking?
+		rescue
+			#Note: This error should NOT be for when the command is invalid
+			# It should only catch here when command execution encounters an error
+			# invalid commands should be handled before we are here
+			puts "Command failed to execute, please try again"
+		end
+	end
 end
 
 shell = Shell.new
