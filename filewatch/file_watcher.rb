@@ -1,31 +1,31 @@
 require_relative 'file_command_parser'
 require_relative '../precision/precision'
+require_relative '../shell/command'
 
 class FileWatcher
 	def initialize(args)
 		parser = FileCommandParser.new(args)
-
-		@commandName = parser.command[0]
-		# @commandClass = parser.command[1]
-		# @commandClass.add_delay(delay)
+		
+		@command = parser.command[0]
 		@args = parser.command[1]
 		@delay = parser.delay
+		alteration = parser.monitor_type
 
 		if alteration == "-d"
-			@alteration = "fileDestroyed?"
-			alteration = "destroyed"
+			@alteration = "file_destroyed?"
+			#alteration = "destroyed"
 		elsif alteration == "-a"
-			@alteration = "fileChanged?"
-			alteration = "altered"
+			@alteration = "file_changed?"
+			#alteration = "altered"
 		else
-			@alteration = "fileCreated?"
-			alteration = "created"
+			@alteration = "file_created?"
+			#alteration = "created"
 		end
 
-		@observers = self.createObserver(parser.files)
+		@observers = self.create_observer(parser.files)
 	end
 
-	def createObserver(files)
+	def create_observer(files)
 		watchList = []
 		for file in files
 			watchList += [Observer.new(file)]
@@ -37,10 +37,18 @@ class FileWatcher
 		while true
 			for observer in @observers
 				if observer.send(@alteration)
-					puts "The file '#{observer.file}' was #{alteration}... the command '#{@commandName}' will execute in #{@delay} milliseconds..."
-					Precision::timer(@delay, Proc.new {exec(@commandName, @args)})
+					puts "The file '#{observer.file}' was #{@alteration}... the command '#{@command}' will execute in #{@delay} milliseconds..."
+					Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
 				end
 			end
+		end
+	end
+
+	def exec_command
+		if @args.is_a? String
+			exec(@command, @args)
+		else
+			exec(@command)
 		end
 	end
 
@@ -50,8 +58,8 @@ end
 class Observer
 	def initialize(file)
 		@file = file
-		@timeAltered = self.calculateLastAlteredTime
-		@exists = self.calculateFileExists
+		@time_altered = self.calculate_last_altered_time
+		@exists = self.calculate_file_exists
 
 	end
 
@@ -59,7 +67,7 @@ class Observer
 		return @file
 	end
 
-	def calculateLastAlteredTime
+	def calculate_last_altered_time
 		begin
 			aTime = File.stat(@file).atime
 		rescue
@@ -68,7 +76,7 @@ class Observer
 		return aTime
 	end
 
-	def calculateFileExists
+	def calculate_file_exists
 		doesFileExist = true
 		begin
 			File::Stat.new(@file)
@@ -78,9 +86,9 @@ class Observer
 		return doesFileExist
 	end
 
-	def fileCreated?
+	def file_created?
 		oldExistsStatus = @exists
-		@exists = self.calculateFileExists
+		@exists = self.calculate_file_exists
 
 		if @exists and !oldExistsStatus
 			return true
@@ -88,9 +96,9 @@ class Observer
 		return false
 	end
 
-	def fileDestroyed?
+	def file_destroyed?
 		oldExistsStatus = @exists
-		@exists = self.calculateFileExists
+		@exists = self.calculate_file_exists
 
 		if !@exists and oldExistsStatus
 			return true
@@ -98,12 +106,12 @@ class Observer
 		return false
 	end
 
-	def fileChanged?
-		oldTime = @timeAltered
-		@timeAltered = self.calculateLastAlteredTime
+	def file_changed?
+		oldTime = @time_altered
+		@time_altered = self.calculate_last_altered_time
 
     	# No change
-	    if oldTime == @timeAltered
+	    if oldTime == @time_altered
 	    	return false
 	    else
 	    	return true

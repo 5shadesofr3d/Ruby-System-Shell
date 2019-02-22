@@ -1,19 +1,18 @@
 
 class FileCommandParser
 
-	attr_reader :monitorType, :files, :command, :delay
+	attr_reader :monitor_type, :files, :command, :delay
 
 	def initialize(args)
 		@args = args
 		@delay = 0
 		@command = []
 		@files = []
-		@monitorType = nil
-		@FileWatcher = nil
-		self.checkForErrors
+		@monitor_type = nil
+		self.check_for_errors
 	end
 
-	def checkForErrors
+	def check_for_errors
 		optionsGiven = @args.select { |element| element[0] == '-'} #list of options given
 		optionsIndex = @args.each_index.select { |i|  @args[i][0] == '-'} #list of indexes for said options
 
@@ -51,24 +50,24 @@ class FileCommandParser
 		for index in 0..optionsGiven.length - 1
 			# If the last option...
 			if index + 1 == optionsGiven.length
-				evalOption(optionsGiven[index], optionsIndex[index] + 1, @argsLength - 1)
+				eval_option(optionsGiven[index], optionsIndex[index] + 1, @args.length - 1)
 			else
-				evalOption(optionsGiven[index], optionsIndex[index] + 1, optionsIndex[index + 1] - 1)
+				eval_option(optionsGiven[index], optionsIndex[index] + 1, optionsIndex[index + 1] - 1)
 			end
 		end
 	end
 
-	def evalOption(monitorType, indexStart, indexFinish)
-		if monitorType == "-f"
-			evalFiles(indexStart, indexFinish)
-		elsif monitorType == "-t"
-			evalDelay(indexStart, indexFinish)
+	def eval_option(monitor_type, indexStart, indexFinish)
+		if monitor_type == "-f"
+			eval_files(indexStart, indexFinish)
+		elsif monitor_type == "-t"
+			eval_delay(indexStart, indexFinish)
 		else
-			evalMonitorType(monitorType, indexStart, indexFinish)
+			eval_monitor_type(monitor_type, indexStart, indexFinish)
 		end
 	end
 
-	def evalFiles(indexStart, indexFinish)
+	def eval_files(indexStart, indexFinish)
 		unless indexFinish > indexStart - 1
 			raise ArgumentError, "Files to monitor should be passed after the -f option, when 0 arguments were given"
 		end
@@ -78,7 +77,7 @@ class FileCommandParser
 		end
 	end
 
-	def evalDelay(indexStart, indexFinish)
+	def eval_delay(indexStart, indexFinish)
 		# If multiple args given
 		unless indexFinish == indexStart
 			raise ArgumentError, "Only one argument should be passed after the -t option, when #{indexFinish - indexStart + 1} arguments were given"
@@ -86,20 +85,19 @@ class FileCommandParser
 
 		arg = @args[indexStart]
 
+		@delay = arg.to_f
 		# If args given is not a number, or is a number not between 0 and 600...
-		unless ((arg.is_a? Numeric) and (0 <= arg))
+		unless ((@delay.is_a? Numeric) and (0 <= @delay))
 			raise ArgumentError, "Argument given after -t (#{arg}) must a positive number between 0 and 600"
 		end
-
-		@delay = arg.to_f
 	end
 
 
-	def evalMonitorType(monitorType, indexStart, indexFinish)
-		@monitorType = monitorType
+	def eval_monitor_type(monitor_type, indexStart, indexFinish)
+		@monitor_type = monitor_type
 		# If no args given...
 		unless (indexFinish > indexStart - 1)
-			raise ArgumentError, "Command to execute should be passed after the #{@monitorType} option, when 0 arguments were given"
+			raise ArgumentError, "Command to execute should be passed after the #{@monitor_type} option, when 0 arguments were given"
 		end
 
 		@command += [@args[indexStart]]

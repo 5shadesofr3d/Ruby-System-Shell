@@ -32,6 +32,10 @@ class Command
 		return thread
 	end
 
+	def call(*args)
+		self.execute(*args)
+	end
+
 	def wait(thread)
 		# waits until thread has finished calling
 		thread.join
