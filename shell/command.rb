@@ -1,5 +1,4 @@
 require 'test/unit'
-#require_relative 'fileWatcher'
 
 class Command
 	include Test::Unit::Assertions
@@ -33,6 +32,10 @@ class Command
 		return thread
 	end
 
+	def call(*args)
+		self.execute(*args)
+	end
+
 	def wait(thread)
 		# waits until thread has finished calling
 		thread.join
@@ -46,32 +49,17 @@ class Command
 end
 
 class ForkCommand < Command
-	def initialize(nonblock = false, &block)
-		@nonblock = nonblock
-		@block = block
-		@delay = nil
-
-		assert valid?
-	end
-
 	def execute(*args)
 		# block passed in is the command itself?
 		assert valid?
 
 		pid = Process.fork do
-			if @delay
-				sleep(@delay)
-			end
 			@block.call(*args)
 		end
 
 		assert valid?
 
 		return pid
-	end
-
-	def add_delay(delay)
-		@delay = delay
 	end
 
 	def wait(pid)
