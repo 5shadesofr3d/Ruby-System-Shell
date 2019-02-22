@@ -1,11 +1,15 @@
-class FileWatch
-	def initialize(alteration, files, command, delay)
-		@files = files
+require_relative 'file_command_parser'
+require_relative '../precision/precision'
 
-		@commandName = command[0]
-		@commandClass = command[1]
-		@commandClass.add_delay(delay)
-		@args = command[2]
+class FileWatcher
+	def initialize(args)
+		parser = FileCommandParser.new(args)
+
+		@commandName = parser.command[0]
+		# @commandClass = parser.command[1]
+		# @commandClass.add_delay(delay)
+		@args = parser.command[1]
+		@delay = parser.delay
 
 		if alteration == "-d"
 			@alteration = "fileDestroyed?"
@@ -18,31 +22,32 @@ class FileWatch
 			alteration = "created"
 		end
 
-		@watchList = self.createWatchList
+		@observers = self.createObserver(parser.files)
+	end
 
+	def createObserver(files)
+		watchList = []
+		for file in files
+			watchList += [Observer.new(file)]
+		end
+		return watchList
+	end
 
+	def watch
 		while true
-			for watcher in @watchList
-				if watcher.send(@alteration)
-					print "\nThe file '#{watcher.file}' was #{alteration}... the command '#{@commandName}' will execute in #{delay} seconds...\n\n"
-					@commandClass.execute(@args)
+			for observer in @observers
+				if observer.send(@alteration)
+					puts "The file '#{observer.file}' was #{alteration}... the command '#{@commandName}' will execute in #{@delay} milliseconds..."
+					Precision::timer(@delay, Proc.new {exec(@commandName, @args)})
 				end
 			end
 		end
 	end
 
-	def createWatchList
-		watchList = []
-		for file in @files
-			watchList += [Watcher.new(file)]
-		end
-		return watchList
-	end
-
 end
 
 
-class Watcher
+class Observer
 	def initialize(file)
 		@file = file
 		@timeAltered = self.calculateLastAlteredTime

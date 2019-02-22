@@ -1,10 +1,7 @@
 require "test/unit"
-require_relative 'command.rb'
-require_relative 'shell_commands.rb'
-require_relative 'file_command_parser'
+require_relative 'command'
 
 class Shell
-	include ShellCommands
 	include Test::Unit::Assertions
 
 	def initialize
@@ -13,8 +10,7 @@ class Shell
 
 		@commands = {
 			'ls' => ForkCommand.new { exec "ls" },
-			'exit' => Command.new { self.exit },
-			'filewatch' => ForkCommand.new {|args| FileCommandParser.new(args, @commands)}
+			'exit' => Command.new { self.exit }
 		}
 
 		assert valid?
@@ -43,6 +39,8 @@ class Shell
 
 	def main
 		#Main shell loop waiting for input
+		assert valid?
+
 		while @active
 			print ">>> "
 			input = gets
@@ -56,6 +54,8 @@ class Shell
 
 			self.execute(command, args)
 		end
+
+		assert valid?
 	end
 
 	def execute(cmd, *args)
