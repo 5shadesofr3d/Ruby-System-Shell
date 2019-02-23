@@ -10,10 +10,11 @@ class Shell
 	def initialize
 		#Add command to hash map
 		@active = false
+		@initial_dir = Dir.pwd
 
 		@commands = {
-			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "fw.rb", *a) },
-			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "dp.rb", *a) },
+			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/fw.rb", *a) },
+			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/dp.rb", *a) },
 			'cd' => Command.new(nonblock = false) { |a| ShellCommands.cd(a) },
 			'exit' => Command.new { self.exit }
 		}
