@@ -1,7 +1,6 @@
 require "test/unit"
 require "colorize"
 require "etc"
-require 'mkmf'
 require_relative "command"
 
 class Shell
@@ -78,7 +77,7 @@ class Shell
 				if a.empty?
 					exec(cmd)
 				else
-					exec(cmd, a.join(" "))
+					exec(cmd, *a)
 				end
 			end
 		end
