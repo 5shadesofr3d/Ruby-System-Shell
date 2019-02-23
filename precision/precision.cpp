@@ -20,10 +20,12 @@ void timer_us(std::uint64_t delay_us, std::function<void()> callback)
 
 void timer_ns(std::uint64_t delay_ns, std::function<void()> callback)
 {
-	auto final_time = Clock::now() + nanoseconds{delay_ns};
+	auto start = Clock::now();
+	auto elapsed = std::chrono::duration_cast<nanoseconds>(Clock::now() - start);
 	
-	while (Clock::now() < final_time)
-		;
+	while (elapsed.count() < delay_ns) {
+		elapsed = std::chrono::duration_cast<nanoseconds>(Clock::now() - start);
+	}
 
 	if (callback)
 		callback();

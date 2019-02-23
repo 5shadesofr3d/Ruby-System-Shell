@@ -5,4 +5,7 @@
 # Jose Ramirez
 # Jori Romans
 
+require_relative 'shell/shell'
 
+shell = Shell.new
+shell.start

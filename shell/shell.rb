@@ -82,8 +82,3 @@ class Shell
 		end
 	end
 end
-
-shell = Shell.new
-shell.start
-
-

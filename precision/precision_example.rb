@@ -1,4 +1,5 @@
 require_relative 'precision'
+require "benchmark"
 
 # setup steps: (make sure you have swig, make, and ruby-dev on your PC!)
 # swig -c++ -ruby precision.i
@@ -22,7 +23,11 @@ def print_timer_ns
 	puts "timer_ns completed"
 end
 
-Precision::timer(1, method(:print_timer))
-Precision::timer_ms(500, method(:print_timer_ms))
-Precision::timer_us(500, method(:print_timer_us))
-Precision::timer_ns(500, method(:print_timer_ns))
+def elapsed(t0)
+	puts "#{Time.now - t0}"
+end
+
+puts(Benchmark.measure { Precision::timer(1, method(:print_timer)) })
+puts(Benchmark.measure { Precision::timer_ms(500, method(:print_timer_ms)) })
+puts(Benchmark.measure { Precision::timer_us(500, method(:print_timer_us)) })
+puts(Benchmark.measure { Precision::timer_ns(500, method(:print_timer_ns)) })
