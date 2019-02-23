@@ -1,8 +1,10 @@
 require_relative 'file_command_parser'
-require_relative '../precision/precision'
+#require_relative '../../precision/precision'
 require_relative '../shell/command'
+require 'test/unit'
 
 class FileWatcher
+	include Test::Unit::Assertions
 	def initialize(args)
 		parser = FileCommandParser.new(args)
 		
@@ -23,23 +25,41 @@ class FileWatcher
 		end
 
 		@observers = self.create_observer(parser.files)
+		assert valid?
+	end
+
+	def valid?
+		return false unless @command.is_a? String
+		return false unless @delay.is_a? Numeric
+		return false unless @alteration.is_a? String
+		return false unless @observers.is_a? Array
+		@observers.each { |file| return false unless file.is_a? Observer }
+		return true
 	end
 
 	def create_observer(files)
+		#pre
+		assert files.is_a? Array
+		files.each { |f| assert f.is_a? String }
 		watchList = []
 		for file in files
 			watchList += [Observer.new(file)]
 		end
+		#post
+		assert watchList.is_a? Array
+		watchList.each { |f| assert f.is_a? Observer }
 		return watchList
 	end
 
 	def watch
+		assert valid?
 		while true
 			for observer in @observers
 				if observer.send(@alteration)
 					puts "The file '#{observer.file}' was #{@alteration}... the command '#{@command}' will execute in #{@delay} milliseconds..."
 					Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
 				end
+				assert valid? #check after each observation
 			end
 		end
 	end

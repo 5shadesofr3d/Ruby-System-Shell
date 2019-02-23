@@ -6,6 +6,7 @@ require_relative "shell_commands"
 
 class Shell
 	include Test::Unit::Assertions
+	include ShellCommands
 
 	def initialize
 		#Add command to hash map
