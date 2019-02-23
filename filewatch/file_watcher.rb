@@ -67,6 +67,7 @@ class FileWatcher
 	end
 
 	def exec_command
+		assert valid?
 		if @args.is_a? String
 			exec(@command, @args)
 		else
@@ -91,6 +92,7 @@ class Observer
 	end
 
 	def file
+		assert valid?
 		return @file
 	end
 
