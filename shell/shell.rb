@@ -1,5 +1,7 @@
 require "test/unit"
-require_relative 'command'
+require "colorize"
+require "etc"
+require_relative "command"
 
 class Shell
 	include Test::Unit::Assertions
@@ -42,7 +44,7 @@ class Shell
 		assert valid?
 
 		while @active
-			print ">>> "
+			print "#{Etc.getlogin}@".light_green.bold + "#{Dir.pwd}".light_blue.bold + "$ "
 			input = gets
 			input = input.split
 
