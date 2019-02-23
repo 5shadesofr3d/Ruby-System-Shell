@@ -23,7 +23,13 @@ class Shell
 	end
 
 	def valid?
-		# TODO: class invariants
+		return false unless @commands.is_a? Hash
+		return false unless @initial_dir.is_a? String
+		return false unless (@active == false || @active == true)
+		return false unless @commands.size > 0 #This should never be 0
+		return false unless !@initial_dir.empty? #working directory should never be ""
+		@commands.each_key {|key| return false unless key.is_a? String}
+		@commands.each_value {|val| return false unless val.is_a? Command}
 		return true
 	end
 
@@ -48,8 +54,11 @@ class Shell
 		assert valid?
 
 		while @active
+			assert valid?
+
 			print "#{Etc.getlogin}@".light_green.bold + "#{Dir.pwd}".light_blue.bold + "$ "
 			input = gets
+			assert input.is_a? String
 			input = input.split
 
 			if input.empty?
@@ -60,17 +69,16 @@ class Shell
 			command = input[0]
 			args = input.drop(1)
 
-			#CHECK VALID HERE
-
 			self.execute(command, args)
+
+			assert valid?
 		end
 
 		assert valid?
 	end
 
 	def execute(cmd, *args)
-		#Get command from hash map
-		# ASSERT VALID_CMD
+
 		to_call = nil
 
 		if @commands.key? cmd
@@ -89,6 +97,7 @@ class Shell
 
 		begin
 			id = to_call.execute(*args)
+			assert id > 0
 			to_call.wait(id) unless to_call.nonblocking?
 		rescue
 			#Note: This error should NOT be for when the command is invalid

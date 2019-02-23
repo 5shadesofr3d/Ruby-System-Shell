@@ -27,6 +27,8 @@ class Command
 			@block.call(*args)
 		end
 
+
+		assert thread.alive?
 		assert valid?
 
 		return thread
@@ -37,8 +39,10 @@ class Command
 	end
 
 	def wait(thread)
+		assert valid?
 		# waits until thread has finished calling
 		thread.join
+		assert valid?
 	end
 
 	def nonblocking?
@@ -57,6 +61,7 @@ class ForkCommand < Command
 			@block.call(*args)
 		end
 
+		assert pid > 0 #negative pid means error occured
 		assert valid?
 
 		return pid
@@ -65,6 +70,7 @@ class ForkCommand < Command
 	def wait(pid)
 		# waits until forked process has finished executing
 		Process.wait(pid)
+		assert valid?
 	end
 end
 
