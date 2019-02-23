@@ -6,6 +6,8 @@ require 'test/unit'
 class FileWatcher
 	include Test::Unit::Assertions
 	def initialize(args)
+		assert args.is_a? Array
+		args.each { |a| assert a.is_a? String }
 		parser = FileCommandParser.new(args)
 		
 		@command = parser.command[0]
