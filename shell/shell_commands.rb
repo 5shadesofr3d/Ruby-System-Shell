@@ -1,21 +1,22 @@
-require "test/unit"
+require_relative '../precision/precision'
 
 #Commands here will instantiate a command object then pass a block to it
 module ShellCommands
-  include Test::Unit::Assertions
 
   # TODO: In some cases, the file directory string printed does not change. I think
   # this is a race condition between this function and the printing function.
-  def self.cd(filepath)
-
-    # assert filepath[0].length > 0 -> Assertions aren't working, not sure why.
-
-    begin
-      Dir.chdir(filepath[0]) # Slight bug, it breaks slightly when
-    rescue SystemCallError
-      puts "Target directory does not exist."
+  def cd
+    return Command.new(nonblocking = false) do |filepath|
+      begin
+        assert filepath.length > 0, "A filepath was not entered"
+        
+        Dir.chdir(filepath[0]) # Slight bug, it breaks slightly when
+      rescue SystemCallError
+        puts "Target directory does not exist."
+      rescue Test::Unit::AssertionFailedError => e
+        puts e.message
+      end
     end
-
   end
 
   # NOTE: I have implemented the most important linux commands as mentioned by this guy:
@@ -27,315 +28,380 @@ module ShellCommands
   #   assert if args not empty, flags is valid
   #   exec("ls", flags, args)
   # end
-  def self.ls(args)
-
-    # Security contracts here... assuming call is(flags, args)
-    # assert flags is valid
-    # assert file exists?
-
-    exec("ls", *args)
+  def ls
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here... assuming call is(flags, args)
+      # assert flags is valid
+      # assert file exists?
+      exec("ls", *args)
+    end
   end
 
-  def self.cp(args)
+  def cp
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("cp", *args)
+      exec("cp", *args)
+    end
   end
 
-  def self.mv(args)
+  def mv
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("mv", *args)
+      exec("mv", *args)
+    end
   end
 
-  def self.rm(args)
+  def rm
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("rm", *args)
+      exec("rm", *args)
+    end
   end
 
-  def self.ln(args)
+  def ln
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("ln", *args)
+      exec("ln", *args)
+    end
   end
 
-  def self.mkdir(args)
+  def mkdir
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert directory name length
-
-    exec("mkdir", *args)
+      exec("mkdir", *args)
+    end
   end
 
-  def self.rmdir(args)
+  def rmdir
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert directory exists
-
-    exec("rmdir", *args)
+      exec("rmdir", *args)
+    end
   end
 
-  def self.chown(args)
+  def chown
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("chown", *args)
+      exec("chown", *args)
+    end
   end
 
-  def self.chgrp(args)
+  def chgrp
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("chgrp", *args)
+      exec("chgrp", *args)
+    end
   end
 
-  def self.chmod(args)
+  def chmod
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("chmod", *args)
+      exec("chmod", *args)
+    end
   end
 
-  def self.gzip(args)
+  def gzip
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("gzip", *args)
+      exec("gzip", *args)
+    end
   end
 
-  def self.tar(args)
+  def tar
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("tar", *args)
+      exec("tar", *args)
+    end
   end
 
-  def self.locate(args)
+  def locate
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert pattern is valid
 
-    # Security contracts here...
-    # assert pattern is valid
-
-    exec("locate", *args)
+      exec("locate", *args)
+    end
   end
 
-  def self.updatedb(args)
+  def updatedb
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("updatedb", *args)
+      exec("updatedb", *args)
+    end
   end
 
-  def self.myfind(args)
+  def myfind
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert options is valid
 
-    # Security contracts here...
-    # assert options is valid
-
-    exec("find", *args)
+      exec("find", *args)
+    end
   end
 
-  def self.cat(args)
+  def cat
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("cat", *args)
+      exec("cat", *args)
+    end
   end
 
-  def self.myless(args)
+  def myless
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("less", *args)
+      exec("less", *args)
+    end
   end
 
-  def self.grep(args)
+  def grep
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("grep", *args)
+      exec("grep", *args)
+    end
   end
 
-  def self.diff(args)
+  def diff
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert file exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert file exists?
-
-    exec("diff", *args)
+      exec("diff", *args)
+    end
   end
 
-  def self.mount(args)
+  def mount
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
 
-    # Security contracts here...
-
-    exec("mount", *args)
+      exec("mount", *args)
+    end
   end
 
-  def self.unmount(args)
+  def unmount
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert directory exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert directory exists?
-
-    exec("unmount", *args)
+      exec("unmount", *args)
+    end
   end
 
-  def self.df(args)
+  def df
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert directory exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert directory exists?
-
-    exec("df", *args)
+      exec("df", *args)
+    end
   end
 
-  def self.du(args)
+  def du
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      # assert path exists?
 
-    # Security contracts here...
-    # assert flags is valid
-    # assert path exists?
-
-    exec("du", *args)
+      exec("du", *args)
+    end
   end
 
-  def self.free(args)
+  def free
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("free", *args)
+      exec("free", *args)
+    end
   end
 
-  def self.date(args)
+  def date
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("date", *args)
+      exec("date", *args)
+    end
   end
 
-  def self.top(args)
+  def top
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("top", *args)
+      exec("top", *args)
+    end
   end
 
-  def self.ps(args)
+  def ps
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("ps", *args)
+      exec("ps", *args)
+    end
   end
 
-  def self.kill(args)
+  def kill
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("kill", *args)
+      exec("kill", *args)
+    end
   end
 
-  def self.killall(args)
+  def killall
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("killall", *args)
+      exec("killall", *args)
+    end
   end
 
-  def self.ping(args)
+  def ping
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("ping", *args)
+      exec("ping", *args)
+    end
   end
 
-  def self.nslookup(args)
+  def nslookup
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
 
-    # Security contracts here...
-
-    exec("nslookup", *args)
+      exec("nslookup", *args)
+    end
   end
 
-  def self.telnet(args)
+  def telnet
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("telnet", *args)
+      exec("telnet", *args)
+    end
   end
 
-  def self.passwd(args)
+  def passwd
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("passwd", *args)
+      exec("passwd", *args)
+    end
   end
 
-  def self.su(args)
+  def su
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("su", *args)
+      exec("su", *args)
+    end
   end
 
-  def self.halt(args)
+  def halt
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
 
-    # Security contracts here...
-    # assert flags is valid
-
-    exec("halt", *args)
+      exec("halt", *args)
+    end
   end
 
-  def self.reboot(args)
-
-    # Security contracts here...
-    # assert flags is valid
-    #
-    exec("reboot", *args)
+  def reboot
+    return ForkCommand.new(nonblocking = false) do |args|
+      # Security contracts here...
+      # assert flags is valid
+      #
+      exec("reboot", *args)
+    end
   end
 
-  def self.clear(args)
+  def clear
+    return ForkCommand.new(nonblocking = false) do |args|
+      # TODO: This should just clear the terminal.
 
-    # TODO: This should just clear the terminal.
+      exec("clear", *args)
+    end
+  end
 
-    exec("clear", *args)
+  def fw
+    return ForkCommand.new(nonblocking = true) do |args|
+      begin
+        file_watcher = FileWatcher.new(args)
+        file_watcher.watch
+      rescue Exception => e
+        puts e.message
+      end
+    end
+  end
+
+  def dp
+    return ForkCommand.new(nonblocking = true) do |args|
+      begin
+        assert (args.length >= 2), "Expected atleast 2 arguments, but got: #{args.length}"
+
+        time, *message = *args
+        time = time.to_i
+
+        assert (time.is_a? Integer), "Expected time parameter to be an integer, but got: #{time.class}"
+        assert (time >= 0), "Expected time value >= 0, but got: #{time}"
+
+        Precision::timer_ms(time, Proc.new { puts message.join(" ") })
+      rescue Exception => e
+        puts e.message
+      end
+    end
   end
 
 end
