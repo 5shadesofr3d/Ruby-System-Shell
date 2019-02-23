@@ -11,7 +11,6 @@ class Shell
 		@active = false
 
 		@commands = {
-			'ls' => ForkCommand.new { exec "ls" },
 			'exit' => Command.new { self.exit }
 		}
 
@@ -68,7 +67,13 @@ class Shell
 		if @commands.key? cmd
 			to_call = @commands[cmd]
 		else
-			to_call = ForkCommand.new { exec(cmd) }
+			to_call = ForkCommand.new do |a|
+				if a.empty?
+					exec(cmd)
+				else
+					exec(cmd, a.join(" "))
+				end
+			end
 		end
 
 		assert to_call.is_a? Command
