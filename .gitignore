@@ -1,1 +1,6 @@
 .idea/
+precision/Makefile
+precision/precision.o
+precision/precision.so
+precision/precision_wrap.cxx
+precision/precision_wrap.o
