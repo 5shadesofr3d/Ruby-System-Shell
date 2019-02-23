@@ -1,15 +1,31 @@
-
+require 'test/unit'
 class FileCommandParser
-
+	include Test::Unit::Assertions
 	attr_reader :monitor_type, :files, :command, :delay
 
 	def initialize(args)
+		assert args.is_a? Array
+		args.each { |a| assert a.is_a? String }
 		@args = args
 		@delay = 0
 		@command = []
 		@files = []
 		@monitor_type = nil
 		self.check_for_errors
+		assert valid?
+	end
+
+	def valid?
+		return false unless @args.is_a? Array
+		@args.each { |a| return false unless a.is_a? String }
+		return false unless @files.is_a? Array
+		@files.each {|f| return false unless f.is_a? String}
+		return false unless @command.is_a? Array
+		@command.each {|c| return false unless c.is_a? String}
+		return false unless @monitor_type.is_a? String
+		return false unless @delay.is_a? Numeric
+		return false unless @delay >= 0 #delay cant be neg
+		return true
 	end
 
 	def check_for_errors
@@ -55,9 +71,14 @@ class FileCommandParser
 				eval_option(optionsGiven[index], optionsIndex[index] + 1, optionsIndex[index + 1] - 1)
 			end
 		end
+		#post
+		assert valid?
 	end
 
 	def eval_option(monitor_type, indexStart, indexFinish)
+		assert monitor_type.is_a? String
+		assert indexStart.is_a? Numeric
+		assert indexFinish.is_a? Numeric
 		if monitor_type == "-f"
 			eval_files(indexStart, indexFinish)
 		elsif monitor_type == "-t"
@@ -68,6 +89,8 @@ class FileCommandParser
 	end
 
 	def eval_files(indexStart, indexFinish)
+		assert indexStart.is_a? Numeric
+		assert indexFinish.is_a? Numeric
 		unless indexFinish > indexStart - 1
 			raise ArgumentError, "Files to monitor should be passed after the -f option, when 0 arguments were given"
 		end
@@ -78,6 +101,8 @@ class FileCommandParser
 	end
 
 	def eval_delay(indexStart, indexFinish)
+		assert indexStart.is_a? Numeric
+		assert indexFinish.is_a? Numeric
 		# If multiple args given
 		unless indexFinish == indexStart
 			raise ArgumentError, "Only one argument should be passed after the -t option, when #{indexFinish - indexStart + 1} arguments were given"
@@ -90,10 +115,17 @@ class FileCommandParser
 		unless ((@delay.is_a? Numeric) and (0 <= @delay))
 			raise ArgumentError, "Argument given after -t (#{arg}) must a positive number between 0 and 600"
 		end
+
+		#post
+		assert @delay.is_a? Numeric
+		assert @delay >= 0
 	end
 
 
 	def eval_monitor_type(monitor_type, indexStart, indexFinish)
+		assert monitor_type.is_a? String
+		assert indexStart.is_a? Numeric
+		assert indexFinish.is_a? Numeric
 		@monitor_type = monitor_type
 		# If no args given...
 		unless (indexFinish > indexStart - 1)
