@@ -76,37 +76,55 @@ end
 
 
 class Observer
+	include Test::Unit::Assertions
 	def initialize(file)
+		#pre
+		assert file.is_a? String
 		@file = file
 		@time_altered = self.calculate_last_altered_time
 		@exists = self.calculate_file_exists
 
+		#post
+		assert valid?
 	end
 
 	def file
 		return @file
 	end
 
+	def valid?
+		return false unless (@exists == true || @exists == false)
+		return false unless @file.is_a? String
+		return false unless @time_altered.is_a? Time
+		return true
+	end
+
 	def calculate_last_altered_time
+		#dont assert class invariant as this is called during setup
 		begin
-			aTime = File.stat(@file).atime
-		rescue
-			aTime = Time.new(0)
-		end
-		return aTime
+				aTime = File.stat(@file).atime
+			rescue
+				aTime = Time.new(0)
+			end
+			assert aTime.is_a? Time
+			return aTime
 	end
 
 	def calculate_file_exists
+		#dont assert class invariant as this is called during setup
 		doesFileExist = true
 		begin
 			File::Stat.new(@file)
 		rescue
 			doesFileExist = false
 		end
+		assert (doesFileExist == true || doesFileExist == false)
 		return doesFileExist
 	end
 
 	def file_created?
+		#pre
+		assert valid?
 		oldExistsStatus = @exists
 		@exists = self.calculate_file_exists
 
@@ -117,6 +135,7 @@ class Observer
 	end
 
 	def file_destroyed?
+		assert valid?
 		oldExistsStatus = @exists
 		@exists = self.calculate_file_exists
 
@@ -127,6 +146,7 @@ class Observer
 	end
 
 	def file_changed?
+		assert valid?
 		oldTime = @time_altered
 		@time_altered = self.calculate_last_altered_time
 
