@@ -14,7 +14,7 @@ class Shell
 		@commands = {
 			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "fw.rb", *a) },
 			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "dp.rb", *a) },
-			'cd' => Command.new(nonblock = true) { |a| ShellCommands.cd(a) },
+			'cd' => Command.new(nonblock = false) { |a| ShellCommands.cd(a) },
 			'exit' => Command.new { self.exit }
 		}
 
