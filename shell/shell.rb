@@ -1,5 +1,7 @@
 require "test/unit"
-require_relative 'command'
+require "colorize"
+require "etc"
+require_relative "command"
 
 class Shell
 	include Test::Unit::Assertions
@@ -9,7 +11,8 @@ class Shell
 		@active = false
 
 		@commands = {
-			'ls' => ForkCommand.new { exec "ls" },
+			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "fw.rb", *a) },
+			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "dp.rb", *a) },
 			'exit' => Command.new { self.exit }
 		}
 
@@ -42,9 +45,13 @@ class Shell
 		assert valid?
 
 		while @active
-			print ">>> "
+			print "#{Etc.getlogin}@".light_green.bold + "#{Dir.pwd}".light_blue.bold + "$ "
 			input = gets
 			input = input.split
+
+			if input.empty?
+				next
+			end
 
 			# TODO: using parser, break input into: command args
 			command = input[0]
@@ -66,7 +73,13 @@ class Shell
 		if @commands.key? cmd
 			to_call = @commands[cmd]
 		else
-			to_call = ForkCommand.new { exec(cmd) }
+			to_call = ForkCommand.new do |a|
+				if a.empty?
+					exec(cmd)
+				else
+					exec(cmd, *a)
+				end
+			end
 		end
 
 		assert to_call.is_a? Command
@@ -82,8 +95,3 @@ class Shell
 		end
 	end
 end
-
-shell = Shell.new
-shell.start
-
-

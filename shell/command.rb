@@ -13,7 +13,7 @@ class Command
 	end
 
 	def valid?
-		return false unless (nonblock == true || nonblock == false)
+		return false unless ((@nonblock == true) || (@nonblock == false))
 		return false unless @block.is_a? Proc
 
 		return true
