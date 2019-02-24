@@ -1,4 +1,3 @@
-require 'fuzzbert'
 require_relative '../shell/shell'
 
 def random_length_string(length)
