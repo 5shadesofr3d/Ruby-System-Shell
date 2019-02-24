@@ -79,6 +79,30 @@ class Shell
 		return "#{Etc.getlogin}@".light_green.bold + "#{Dir.pwd}".light_blue.bold + "$ "
 	end
 
+	# The main loop without the loop.
+	# Let's us inject input for fuzzy testing.
+	def test_main(input)
+		assert valid?
+
+		# print prompt -> Don't care about prompt.
+		assert input.is_a? String
+		input = input.split
+
+		if not input.empty?
+			command = input[0]
+			args = input.drop(1)
+
+			if valid_command?(command)
+				self.execute(command, args)
+			else
+				puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
+			end
+		end
+
+		assert valid?
+	end
+
+
 	def main
 		#Main shell loop waiting for input
 		assert valid?
