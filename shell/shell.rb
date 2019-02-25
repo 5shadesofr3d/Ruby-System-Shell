@@ -61,6 +61,10 @@ class Shell
 		assert valid?
 
 		@active = true
+		@monitor_thread = Thread.new do
+			@monitor.run
+		end
+
 		self.main
 	end
 
@@ -68,6 +72,14 @@ class Shell
 		assert valid?
 
 		@active = false
+
+		@monitor.active = false
+		@monitor_thread.join
+		puts "Cleaning up the following jobs:\n".yellow.bold
+		@monitor.print_processes
+		@monitor.cleanup
+
+		assert @monitor.num_processes == 1 # this process
 
 		assert valid?
 	end
@@ -121,7 +133,7 @@ class Shell
 			if (to_call.is_a? ForkCommand) and (@@MAX_NUM_PROCESS <= @monitor.num_processes)
 				raise ProcessCountExceeded, "Cannot run anymore processes as process count of #{@@MAX_NUM_PROCESS} has exceeded!"
 			end
-			
+
 			id = to_call.execute(*args)
 			to_call.wait(id) unless to_call.nonblocking?
 		rescue Exception => e

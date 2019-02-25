@@ -41,6 +41,8 @@ class Monitor
 	# Monitors all processes belonging to the specified pid tree
 	include Test::Unit::Assertions
 
+	attr_accessor :active
+
 	def initialize(pid)
 		assert (pid.is_a? Integer)
 
@@ -120,6 +122,8 @@ class Monitor
 		assert valid?
 
 		@processes.each do |pid, process|
+			next if pid == @pid
+
 			Process.kill("SIGKILL", pid)
 			Process.wait
 		end
