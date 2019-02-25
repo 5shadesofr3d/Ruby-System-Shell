@@ -31,6 +31,7 @@ class Command
 		assert valid?
 
 		thread = Thread.new do
+			$SAFE = 1
 			@block.call(*args)
 		end
 
@@ -81,6 +82,7 @@ class ForkCommand < Command
 		assert valid?
 
 		pid = Process.fork do
+			$SAFE = 1
 			@block.call(*args)
 		end
 

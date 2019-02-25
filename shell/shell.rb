@@ -3,20 +3,25 @@ require "colorize"
 require "etc"
 require_relative "command"
 require_relative "shell_commands"
+require_relative "monitor"
 
 class Shell
 	include Test::Unit::Assertions
 	include ShellCommands
 
+	@@MAX_NUM_PROCESS = 3
+
 	def initialize
 		#Add command to hash map
 		@active = false
 		@initial_dir = Dir.pwd
+		@monitor = Monitor.new(Process.pid)
 
 		@commands = {
 			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/fw.rb", *a) },
 			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/dp.rb", *a) },
 			'cd' => Command.new(nonblock = false) { |a| ShellCommands.cd(a) },
+			'monitor' => Command.new { @monitor.print_processes },
 			'exit' => Command.new { self.exit }
 		}
 
@@ -85,6 +90,10 @@ class Shell
 		assert !@active
 
 		@active = true
+		@monitor_thread = Thread.new do
+			@monitor.run
+		end
+
 		self.main
 
 		#post
@@ -97,10 +106,20 @@ class Shell
 		assert valid?
 		assert @active
 
+		assert (@active == true), "Cannot exit if the shell was never started"
+
 		@active = false
+
+		@monitor.active = false
+		@monitor_thread.join
+		puts "Cleaning up the following jobs:".yellow.bold
+		@monitor.print_processes
+		@monitor.cleanup
 
 		#post
 		assert !@active
+		assert @monitor.num_processes == 0 # this process is the only one running
+
 		assert valid?
 	end
 
@@ -167,23 +186,21 @@ class Shell
 		if @commands.key? cmd
 			to_call = @commands[cmd]
 		else
-			to_call = ForkCommand.new do |a|
-				if a.empty?
-					exec(cmd)
-				else
-					exec(cmd, *a)
-				end
-			end
+			to_call = ForkCommand.new { |a| exec(*[cmd, *a]) }
 		end
 
 		begin
+			if (to_call.is_a? ForkCommand) and (@@MAX_NUM_PROCESS <= @monitor.num_processes)
+				raise Exception, "Cannot run anymore processes as process count of #{@@MAX_NUM_PROCESS} has exceeded!"
+			end
+
 			id = to_call.execute(*args)
 			to_call.wait(id) unless to_call.nonblocking?
-		rescue
+		rescue Exception => e
 			#Note: This error should NOT be for when the command is invalid
 			# It should only catch here when command execution encounters an error
 			# invalid commands should be handled before we are here
-			puts "Error: The command failed to execute, please try again".red.bold
+			puts e.message.red.bold
 		end
 
 		#post
