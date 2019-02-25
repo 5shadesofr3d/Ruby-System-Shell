@@ -160,27 +160,71 @@ class TestArithmetic < Test::Unit::TestCase
     assert_nothing_raised ArgumentError do
       file_watcher = FileWatcher.new(["-t", "3", "-f", "file1", "-d", "ls"])
     end
-    
+
   end
 
   def test_c_file_creation
+
+    file_watcher = FileWatcher.new(["-f", "testFile", "-t", "3", "-c", "ls"])
+		file_watcher.testMode
+
+		# File should not be created yet
+		assert(!file_watcher.observers[0].exists)
+
+		# Create file
+		system("touch testFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFile")
 
   end
 
   def test_c_folder_creation
 
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-c", "ls"])
+		file_watcher.testMode
+
+		# File should not be created yet
+		assert(!file_watcher.observers[0].exists)
+
+		# Create file
+		system("mkdir testFolder")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rmdir testFolder")
+
   end
 
   def test_c_multiple_files
+		file_watcher = FileWatcher.new(["-f", "testFolder", "testFile",  "-t", "3", "-c", "ls"])
+		file_watcher.testMode
 
-  end
+		# File and folder should not be created yet
+		assert(!file_watcher.observers[0].exists)
+		assert(!file_watcher.observers[1].exists)
 
-  def test_c_file_destruction_then_creation
+		# Create file
+		system("mkdir testFolder")
+		system("touch testFile")
 
-  end
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
 
-  def test_c_folder_destruction_then_creation
+		# File should be created and observed
+		assert(file_watcher.observers == true)
 
+		system("rmdir testFolder")
+		system("rm testFile")
   end
 
   def test_d_file_destruction
