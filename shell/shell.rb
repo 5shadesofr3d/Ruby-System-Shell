@@ -20,6 +20,7 @@ class Shell
 			'exit' => Command.new { self.exit }
 		}
 
+		#post
 		assert !@active
 		assert @initial_dir.is_a? String
 		assert @commands.is_a? Hash
@@ -40,6 +41,7 @@ class Shell
 	end
 
 	def valid_command?(cmd)
+		#pre
 		assert valid?
 		assert cmd.is_a? String
 
@@ -49,14 +51,17 @@ class Shell
 			return which(cmd)
 		end
 
+		#post
 		assert cmd.is_a? String
 		assert valid?
 	end
 
 	def which(cmd)
+		#pre
 		assert valid?
 		assert cmd.is_a? String
-		# Stolen from: https://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
+
+		# Credit to: https://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
 		exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
 		ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
 			exts.each { |ext|
@@ -65,6 +70,7 @@ class Shell
 			}
 		end
 
+		#post
 		assert exts.is_a? Array
 		assert exts.each {|e| assert e.is_a? String}
 		assert valid?
@@ -74,19 +80,27 @@ class Shell
 
 	def start
 		# starts the shell
+		# pre
 		assert valid?
+		assert !@active
 
 		@active = true
 		self.main
 
+		#post
+		assert !@active #upon exit of main loop, we are unactive again
 		assert valid?
 	end
 
 	def exit
+		#pre
 		assert valid?
+		assert @active
 
 		@active = false
 
+		#post
+		assert !@active
 		assert valid?
 	end
 
@@ -96,16 +110,21 @@ class Shell
 
 	def main
 		#Main shell loop waiting for input
+		# pre
 		assert valid?
+		assert @active
 
 		while @active
 			poll_user
 		end
 
+		#post
+		assert !@active
 		assert valid?
 	end
 
 	def poll_user
+		#pre
 		assert valid?
 		assert @active
 
@@ -129,7 +148,7 @@ class Shell
 			puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
 		end
 
-
+		#post
 		assert input.is_a? Array
 		assert command.is_a? String
 		assert args.is_a? Array
@@ -137,7 +156,7 @@ class Shell
 	end
 
 	def execute(cmd, *args)
-
+		#pre
 		assert valid?
 		assert cmd.is_a? String
 		assert args.is_a? Array
@@ -167,6 +186,7 @@ class Shell
 			puts "Error: The command failed to execute, please try again".red.bold
 		end
 
+		#post
 		assert to_call.is_a? Command
 		assert valid?
 	end

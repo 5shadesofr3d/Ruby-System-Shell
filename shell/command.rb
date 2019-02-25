@@ -68,6 +68,7 @@ class Command
 	def nonblocking?
 		#pre
 		assert valid?
+		assert ((@nonblock == true) || (@nonblock == false))
 
 		return @nonblock
 	end
