@@ -3,14 +3,18 @@ require "colorize"
 require "etc"
 require_relative "command"
 require_relative "shell_commands"
+require_relative "monitor"
 
 class Shell
 	include Test::Unit::Assertions
+
+	@@MAX_NUM_PROCESS = 10
 
 	def initialize
 		#Add command to hash map
 		@active = false
 		@initial_dir = Dir.pwd
+		@monitor = Monitor.new(Process.pid)
 
 		@commands = {
 			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/fw.rb", *a) },
@@ -108,25 +112,23 @@ class Shell
 		if @commands.key? cmd
 			to_call = @commands[cmd]
 		else
-			to_call = ForkCommand.new do |a|
-				if a.empty?
-					exec(cmd)
-				else
-					exec(cmd, *a)
-				end
-			end
+			to_call = ForkCommand.new { |a| a.empty? exec(cmd) : exec(cmd, *a) }
 		end
 
 		assert to_call.is_a? Command
 
 		begin
+			if (to_call.is_a? ForkCommand) and (@@MAX_NUM_PROCESS <= @monitor.num_processes)
+				raise ProcessCountExceeded, "Cannot run anymore processes as process count of #{@@MAX_NUM_PROCESS} has exceeded!"
+			end
+			
 			id = to_call.execute(*args)
 			to_call.wait(id) unless to_call.nonblocking?
-		rescue
+		rescue Exception => e
 			#Note: This error should NOT be for when the command is invalid
 			# It should only catch here when command execution encounters an error
 			# invalid commands should be handled before we are here
-			puts "Error: The command failed to execute, please try again".red.bold
+			puts e.message.red.bold
 		end
 	end
 end
