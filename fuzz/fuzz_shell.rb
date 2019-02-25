@@ -32,7 +32,7 @@ begin
 
   # Write random tests here...
 
-  # completely_random_tests(2) # We're getting a null byte error, can we fix this?
+  completely_random_tests(10) # We're getting a null byte error, can we fix this?
   random_string_tests(10)
 
 rescue Exception => e
