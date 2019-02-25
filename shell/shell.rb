@@ -20,6 +20,11 @@ class Shell
 			'exit' => Command.new { self.exit }
 		}
 
+		assert !@active
+		assert @initial_dir.is_a? String
+		assert @commands.is_a? Hash
+		@commands.each_key { |a| assert a.is_a? String  }
+		@commands.each_value {|v| assert v.is_a? Command }
 		assert valid?
 	end
 
@@ -43,6 +48,9 @@ class Shell
 		else
 			return which(cmd)
 		end
+
+		assert cmd.is_a? String
+		assert valid?
 	end
 
 	def which(cmd)
@@ -56,6 +64,11 @@ class Shell
 				return true if File.executable?(exe) && !File.directory?(exe)
 			}
 		end
+
+		assert exts.is_a? Array
+		assert exts.each {|e| assert e.is_a? String}
+		assert valid?
+
 		return false
 	end
 
@@ -65,6 +78,8 @@ class Shell
 
 		@active = true
 		self.main
+
+		assert valid?
 	end
 
 	def exit
@@ -84,33 +99,49 @@ class Shell
 		assert valid?
 
 		while @active
-			assert valid?
-			print prompt
-			input = gets
-			assert input.is_a? String
-			input = input.split
-
-			if input.empty?
-				next
-			end
-
-			# TODO: using parser, break input into: command args
-			command = input[0]
-			args = input.drop(1)
-
-			#CHECK VALID HERE
-			if valid_command?(command)
-				self.execute(command, args)
-			else
-				puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
-			end
-			assert valid?
+			poll_user
 		end
 
 		assert valid?
 	end
 
+	def poll_user
+		assert valid?
+		assert @active
+
+		print prompt
+		input = gets
+		assert input.is_a? String
+		input = input.split
+
+		if input.empty?
+			return
+		end
+
+		# TODO: using parser, break input into: command args
+		command = input[0]
+		args = input.drop(1)
+
+		#CHECK VALID HERE
+		if valid_command?(command)
+			self.execute(command, args)
+		else
+			puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
+		end
+
+
+		assert input.is_a? Array
+		assert command.is_a? String
+		assert args.is_a? Array
+		assert valid?
+	end
+
 	def execute(cmd, *args)
+
+		assert valid?
+		assert cmd.is_a? String
+		assert args.is_a? Array
+		assert args.each {|a| a.is_a? String}
 
 		to_call = nil
 
@@ -126,12 +157,8 @@ class Shell
 			end
 		end
 
-		assert to_call.is_a? Command
-
 		begin
 			id = to_call.execute(*args)
-
-			assert id
 			to_call.wait(id) unless to_call.nonblocking?
 		rescue
 			#Note: This error should NOT be for when the command is invalid
@@ -139,5 +166,8 @@ class Shell
 			# invalid commands should be handled before we are here
 			puts "Error: The command failed to execute, please try again".red.bold
 		end
+
+		assert to_call.is_a? Command
+		assert valid?
 	end
 end
