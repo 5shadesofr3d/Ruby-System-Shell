@@ -66,4 +66,112 @@ class TestArithmetic < Test::Unit::TestCase
 
   end
 
+  def test_other_options
+
+  end
+
+  def test_no_arguments
+
+  end
+
+  def test_multiple_times_given
+
+  end
+
+  def test_valid_time_given
+
+  end
+
+  def test_any_option_order_allowed
+
+  end
+
+  def test_c_file_creation
+
+  end
+
+  def test_c_folder_creation
+
+  end
+
+  def test_c_multiple_files
+
+  end
+
+  def test_c_file_destruction_then_creation
+
+  end
+
+  def test_c_folder_destruction_then_creation
+
+  end
+
+  def test_d_file_destruction
+
+  end
+
+  def test_d_folder_destruction
+
+  end
+
+  def test_d_multiple_files
+
+  end
+
+  def test_d_file_creation_then_destruction
+
+  end
+
+  def test_d_folder_creation_then_destruction
+
+  end
+
+  def test_a_file_creation
+
+  end
+
+  def test_a_folder_creation
+
+  end
+
+  def test_a_multiple_files
+
+  end
+
+  def test_a_file_destruction
+
+  end
+
+  def test_a_folder_destruction
+
+  end
+
+  def test_a_nested_folder_creation_and_destruction
+
+  end
+
+  def test_a_nested_file_creation_and_destruction
+
+  end
+
+  def test_a_file_modification
+
+  end
+
+  def test_a_file_rename
+
+  end
+
+  def test_a_nested_file_modification
+
+  end
+
+  def test_a_nested_file_rename
+
+  end
+
+  def test_a_nested_folder_rename
+
+  end
+
 end
