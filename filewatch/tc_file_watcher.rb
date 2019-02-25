@@ -314,8 +314,8 @@ class TestArithmetic < Test::Unit::TestCase
 		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
 		file_watcher.testMode
 
-		# File should not be created yet
-		assert(!file_watcher.observers[0].exists)
+		# File should be created yet
+		assert !file_watcher.observers[0].exists
 
 		# Create file
 		system("mkdir testFolder")

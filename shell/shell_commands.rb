@@ -5,7 +5,7 @@ require "colorize"
 module ShellCommands
   include Test::Unit::Assertions
 
-  # TODO: In some cases, the file directory string printed does not change. I think
+  # NOTE: In some cases, the file directory string printed does not change. I think
   # this is a race condition between this function and the printing function.
   def self.cd(filepath = ENV["HOME"])
     begin

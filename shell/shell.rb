@@ -25,6 +25,12 @@ class Shell
 			'exit' => Command.new { self.exit }
 		}
 
+		#post
+		assert !@active
+		assert @initial_dir.is_a? String
+		assert @commands.is_a? Hash
+		@commands.each_key { |a| assert a.is_a? String  }
+		@commands.each_value {|v| assert v.is_a? Command }
 		assert valid?
 	end
 
@@ -40,6 +46,7 @@ class Shell
 	end
 
 	def valid_command?(cmd)
+		#pre
 		assert valid?
 		assert cmd.is_a? String
 
@@ -48,12 +55,18 @@ class Shell
 		else
 			return which(cmd)
 		end
+
+		#post
+		assert cmd.is_a? String
+		assert valid?
 	end
 
 	def which(cmd)
+		#pre
 		assert valid?
 		assert cmd.is_a? String
-		# Stolen from: https://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
+
+		# Credit to: https://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
 		exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
 		ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
 			exts.each { |ext|
@@ -61,6 +74,12 @@ class Shell
 				return true if File.executable?(exe) && !File.directory?(exe)
 			}
 		end
+
+		#post
+		assert exts.is_a? Array
+		assert exts.each {|e| assert e.is_a? String}
+		assert valid?
+
 		return false
 	end
 
@@ -70,7 +89,9 @@ class Shell
 
 	def start
 		# starts the shell
+		# pre
 		assert valid?
+		assert !@active
 
 		@active = true
 		@monitor_thread = Thread.new do
@@ -78,10 +99,16 @@ class Shell
 		end
 
 		self.main
+
+		#post
+		assert !@active #upon exit of main loop, we are unactive again
+		assert valid?
 	end
 
 	def exit
+		#pre
 		assert valid?
+		assert @active
 
 		assert (@active == true), "Cannot exit if the shell was never started"
 
@@ -93,6 +120,8 @@ class Shell
 		@monitor.print_processes
 		@monitor.cleanup
 
+		#post
+		assert !@active
 		assert @monitor.num_processes == 0 # this process is the only one running
 
 		assert valid?
@@ -104,36 +133,57 @@ class Shell
 
 	def main
 		#Main shell loop waiting for input
+		# pre
 		assert valid?
+		assert @active
 
 		while @active
-			assert valid?
-			print prompt
-			input = gets
-			assert input.is_a? String
-			input = input.split
-
-			if input.empty?
-				next
-			end
-
-			# TODO: using parser, break input into: command args
-			command = input[0]
-			args = input.drop(1)
-
-			#CHECK VALID HERE
-			if valid_command?(command)
-				self.execute(command, args)
-			else
-				puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
-			end
-			assert valid?
+			poll_user
 		end
 
+		#post
+		assert !@active
+		assert valid?
+	end
+
+	def poll_user
+		#pre
+		assert valid?
+		assert @active
+
+		print prompt
+		input = gets
+		assert input.is_a? String
+		input = input.split
+
+		if input.empty?
+			return
+		end
+
+		# TODO: using parser, break input into: command args
+		command = input[0]
+		args = input.drop(1)
+
+		#CHECK VALID HERE
+		if valid_command?(command)
+			self.execute(command, args)
+		else
+			puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
+		end
+
+		#post
+		assert input.is_a? Array
+		assert command.is_a? String
+		assert args.is_a? Array
 		assert valid?
 	end
 
 	def execute(cmd, *args)
+		#pre
+		assert valid?
+		assert cmd.is_a? String
+		assert args.is_a? Array
+		assert args.each {|a| a.is_a? String}
 
 		to_call = nil
 
@@ -143,16 +193,12 @@ class Shell
 			to_call = ForkCommand.new { |a| exec(*[cmd, *a]) }
 		end
 
-		assert to_call.is_a? Command
-
 		begin
 			if (to_call.is_a? ForkCommand) and (self.MAX_NUM_PROCESS <= @monitor.num_processes)
 				raise Exception, "Cannot run anymore processes without exceeding max processes count of #{self.MAX_NUM_PROCESS}"
 			end
 
 			id = to_call.execute(*args)
-
-			assert id
 			to_call.wait(id) unless to_call.nonblocking?
 		rescue Exception => e
 			#Note: This error should NOT be for when the command is invalid
@@ -160,5 +206,9 @@ class Shell
 			# invalid commands should be handled before we are here
 			puts e.message.red.bold
 		end
+
+		#post
+		assert to_call.is_a? Command
+		assert valid?
 	end
 end
