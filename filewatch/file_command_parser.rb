@@ -110,11 +110,20 @@ class FileCommandParser
 		else
 			eval_monitor_type(monitor_type, indexStart, indexFinish)
 		end
+
+		#post
+		# Note: No post assertions here as this function "builds" the class variables, therefore we cannot
+		# gurantee any of the results at any intermediate step. Assertions are done in the calling function
+		# immediately after for loop.
 	end
 
 	def eval_files(indexStart, indexFinish)
+		#pre
 		assert indexStart.is_a? Numeric
 		assert indexFinish.is_a? Numeric
+		assert @args.is_a? Array
+		@args.each {|a| assert a.is_a? String}
+
 		unless indexFinish > indexStart - 1
 			raise ArgumentError, "Files to monitor should be passed after the -f option, when 0 arguments were given"
 		end
