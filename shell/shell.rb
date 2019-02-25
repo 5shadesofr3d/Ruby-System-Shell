@@ -8,7 +8,7 @@ require_relative "monitor"
 class Shell
 	include Test::Unit::Assertions
 
-	ENV["MAX_NUM_PROCESS"] = 3.to_s
+	ENV["MAX_NUM_PROCESS"] = 10.to_s
 
 	def initialize
 		#Add command to hash map
