@@ -8,7 +8,7 @@ require_relative "monitor"
 class Shell
 	include Test::Unit::Assertions
 
-	@@MAX_NUM_PROCESS = 10
+	@@MAX_NUM_PROCESS = 3
 
 	def initialize
 		#Add command to hash map
@@ -20,6 +20,7 @@ class Shell
 			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/fw.rb", *a) },
 			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/dp.rb", *a) },
 			'cd' => Command.new(nonblock = false) { |a| ShellCommands.cd(a) },
+			'monitor' => Command.new { @monitor.print_processes },
 			'exit' => Command.new { self.exit }
 		}
 
@@ -71,6 +72,8 @@ class Shell
 	def exit
 		assert valid?
 
+		assert (@active == true), "Cannot exit if the shell was never started"
+
 		@active = false
 
 		@monitor.active = false
@@ -79,7 +82,7 @@ class Shell
 		@monitor.print_processes
 		@monitor.cleanup
 
-		assert @monitor.num_processes == 1 # this process
+		assert @monitor.num_processes == 0 # this process is the only one running
 
 		assert valid?
 	end
@@ -124,14 +127,14 @@ class Shell
 		if @commands.key? cmd
 			to_call = @commands[cmd]
 		else
-			to_call = ForkCommand.new { |a| if a.empty? then exec(cmd) else exec(cmd, *a) end }
+			to_call = ForkCommand.new { |a| exec(*[cmd, *a]) }
 		end
 
 		assert to_call.is_a? Command
 
 		begin
 			if (to_call.is_a? ForkCommand) and (@@MAX_NUM_PROCESS <= @monitor.num_processes)
-				raise ProcessCountExceeded, "Cannot run anymore processes as process count of #{@@MAX_NUM_PROCESS} has exceeded!"
+				raise Exception, "Cannot run anymore processes as process count of #{@@MAX_NUM_PROCESS} has exceeded!"
 			end
 
 			id = to_call.execute(*args)
