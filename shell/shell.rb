@@ -67,12 +67,17 @@ class Shell
 		assert cmd.is_a? String
 
 		# Credit to: https://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
-		exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
-		ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
-			exts.each { |ext|
-				exe = File.join(path, "#{cmd}#{ext}")
-				return true if File.executable?(exe) && !File.directory?(exe)
-			}
+		begin
+			exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+			ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+				exts.each { |ext|
+					exe = File.join(path, "#{cmd}#{ext}")
+					return true if File.executable?(exe) && !File.directory?(exe)
+				}
+			end
+		rescue ArgumentError => e
+			puts e.message.red.bold
+			return false
 		end
 
 		#post
@@ -130,6 +135,30 @@ class Shell
 	def prompt
 		return "#{Etc.getlogin}@".light_green.bold + "#{Dir.pwd}".light_blue.bold + "$ "
 	end
+
+	# The main loop without the loop.
+	# Let's us inject input for fuzzy testing.
+	def test_main(input)
+		assert valid?
+
+		# print prompt -> Don't care about prompt.
+		assert input.is_a? String
+		input = input.split
+
+		if not input.empty?
+			command = input[0]
+			args = input.drop(1)
+
+			if valid_command?(command)
+				self.execute(command, args)
+			else
+				puts "Error: The entered command '#{command}' is not a valid Unix command".red.bold
+			end
+		end
+
+		assert valid?
+	end
+
 
 	def main
 		#Main shell loop waiting for input
