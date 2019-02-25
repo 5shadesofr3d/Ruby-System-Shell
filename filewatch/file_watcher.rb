@@ -1,10 +1,11 @@
 require_relative 'file_command_parser'
-#require_relative '../../precision/precision'
+require_relative '../precision/precision'
 require_relative '../shell/command'
 require 'test/unit'
 
 class FileWatcher
 	include Test::Unit::Assertions
+
 	def initialize(args)
 		assert args.is_a? Array
 		args.each { |a| assert a.is_a? String }
@@ -13,7 +14,6 @@ class FileWatcher
 		@command = parser.command[0]
 		@args = parser.command[1]
 		@delay = parser.delay
-		@testing = false
 		alteration = parser.monitor_type
 
 		if alteration == "-d"
@@ -32,15 +32,9 @@ class FileWatcher
 	end
 
 	def observers
+		assert valid?
+
 		return @observers
-	end
-
-	def testMode
-		@testing = true
-	end
-
-	def testing?
-		return @testing
 	end
 
 	def valid?
@@ -49,6 +43,7 @@ class FileWatcher
 		return false unless @alteration.is_a? String
 		return false unless @observers.is_a? Array
 		@observers.each { |file| return false unless file.is_a? Observer }
+
 		return true
 	end
 
@@ -69,17 +64,10 @@ class FileWatcher
 	def watch
 		assert valid?
 		while true
-			if testing? and @observers.length == 0
-				@observers = true
-				break
-			end
 			for observer in @observers
 				if observer.send(@alteration)
 					puts "The file '#{observer.file}' was #{@alteration}... the command '#{@command}' will execute in #{@delay} milliseconds..."
-					#Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
-					if testing?
-						@observers.delete(observer)
-					end
+					Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
 				end
 				assert valid? #check after each observation
 			end
@@ -136,12 +124,13 @@ class Observer
 	def calculate_last_altered_time
 		#dont assert class invariant as this is called during setup
 		begin
-				aTime = File.stat(@file).atime
-			rescue
-				aTime = Time.new(0)
-			end
-			assert aTime.is_a? Time
-			return aTime
+			aTime = File.stat(@file).atime
+		rescue
+			aTime = Time.new(0)
+		end
+		
+		assert aTime.is_a? Time
+		return aTime
 	end
 
 	def calculate_file_exists
