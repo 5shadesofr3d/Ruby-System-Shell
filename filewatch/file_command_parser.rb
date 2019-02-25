@@ -58,7 +58,7 @@ class FileCommandParser
 		unless ((optionsGiven.include? "-d" and !optionsGiven.include? "-a" and !optionsGiven.include? "-c") \
 			or (optionsGiven.include? "-a" and !optionsGiven.include? "-d" and !optionsGiven.include? "-c") \
 			or (optionsGiven.include? "-c" and !optionsGiven.include? "-a" and !optionsGiven.include? "-d"))
-			
+
 			raise ArgumentError, "Only one of the file monitoring options (-d, -a, or -c) may be specified"
 		end
 
@@ -109,10 +109,10 @@ class FileCommandParser
 		end
 
 		arg = @args[indexStart]
-
 		@delay = arg.to_f
+
 		# If args given is not a number, or is a number not between 0 and 600...
-		unless ((@delay.is_a? Numeric) and (0 <= @delay))
+		unless ((arg.to_f.to_s == arg or arg.to_i.to_s == arg) and (0 <= @delay))
 			raise ArgumentError, "Argument given after -t (#{arg}) must a positive number between 0 and 600"
 		end
 
@@ -158,4 +158,3 @@ end
 #
 #
 # f = FileCommandParser.new(args, commands)
-

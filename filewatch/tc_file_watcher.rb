@@ -73,19 +73,94 @@ class TestArithmetic < Test::Unit::TestCase
   end
 
   def test_no_arguments
+    # -f missing
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "-t", "3", "-c", "ls"])
+    end
+
+    # -t missing
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "-c", "ls"])
+    end
+
+    # -d missing
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "-d"])
+    end
+
+    # -a missing
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "-a"])
+    end
+
+    # -c missing
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "-c"])
+    end
 
   end
 
   def test_multiple_times_given
-
+    # Two values given
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "6", "-c", "ls"])
+    end
   end
 
   def test_valid_time_given
+    # Edge cases...
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "0", "-c", "ls"])
+    end
+
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "600", "-c", "ls"])
+    end
+
+    # Negative
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "-1", "-c", "ls"])
+    end
+
+    # Non number
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "a", "-c", "ls"])
+    end
 
   end
 
   def test_any_option_order_allowed
+    #file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "-c", "ls"])
+    # -f, -t, -dac
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "-c", "ls"])
+    end
 
+    # -f, -dac, -t
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-a", "ls", "-t", "3"])
+    end
+
+    # -dac, -f, -t
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-d", "ls", "-f", "file1", "-t", "3"])
+    end
+
+    # -dac, -t, -f
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-a", "ls", "-t", "3", "-f", "file1"])
+    end
+
+    # -t, -dac, -f
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-t", "3", "-c", "ls",  "-f", "file1"])
+    end
+
+    # -t, -f, -dac
+    assert_nothing_raised ArgumentError do
+      file_watcher = FileWatcher.new(["-t", "3", "-f", "file1", "-d", "ls"])
+    end
+    
   end
 
   def test_c_file_creation
