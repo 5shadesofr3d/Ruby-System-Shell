@@ -4,11 +4,10 @@ require "test/unit"
 module ShellCommands
   include Test::Unit::Assertions
 
-  # TODO: In some cases, the file directory string printed does not change. I think
+  # NOTE: In some cases, the file directory string printed does not change. I think
   # this is a race condition between this function and the printing function.
   def self.cd(filepath)
-
-    # assert filepath[0].length > 0 -> Assertions aren't working, not sure why.
+    #NOTE: Assertions aren't working here
 
     begin
       Dir.chdir(filepath[0]) # Slight bug, it breaks slightly when
