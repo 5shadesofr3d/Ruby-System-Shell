@@ -79,7 +79,6 @@ class Monitor
 				ps.each do |process|
 					user, pid, ppid, state, started, cmd = process.split
 					if ((@pid == pid.to_i) or (@processes.key? pid.to_i) or (@processes.key? ppid.to_i))
-						puts pid
 						process = ProcessInfo.new(user, pid.to_i, ppid.to_i, state, started, cmd)
 						@processes[pid.to_i] = process 
 					end

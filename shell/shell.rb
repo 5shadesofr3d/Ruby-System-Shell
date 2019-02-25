@@ -75,7 +75,7 @@ class Shell
 
 		@monitor.active = false
 		@monitor_thread.join
-		puts "Cleaning up the following jobs:\n".yellow.bold
+		puts "Cleaning up the following jobs:".yellow.bold
 		@monitor.print_processes
 		@monitor.cleanup
 
@@ -124,7 +124,7 @@ class Shell
 		if @commands.key? cmd
 			to_call = @commands[cmd]
 		else
-			to_call = ForkCommand.new { |a| a.empty? exec(cmd) : exec(cmd, *a) }
+			to_call = ForkCommand.new { |a| if a.empty? then exec(cmd) else exec(cmd, *a) end }
 		end
 
 		assert to_call.is_a? Command
