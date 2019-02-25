@@ -12,6 +12,14 @@ class FileCommandParser
 		@files = []
 		@monitor_type = nil
 		self.check_for_errors
+		assert args.is_a? Array
+		args.each { |a| assert a.is_a? String }
+		assert @command.is_a? Array
+		@command.each {|c| assert c.is_a? String}
+		assert @files.is_a? Array
+		@files.each {|f| assert f.is_a? String}
+		assert @delay.is_a? Numeric
+		assert @delay >= 0
 		assert valid?
 	end
 
@@ -29,6 +37,10 @@ class FileCommandParser
 	end
 
 	def check_for_errors
+		#pre
+		assert @args.is_a? Array
+		@args.each {|a| a.is_a? String}
+
 		optionsGiven = @args.select { |element| element[0] == '-'} #list of options given
 		optionsIndex = @args.each_index.select { |i|  @args[i][0] == '-'} #list of indexes for said options
 
@@ -72,6 +84,9 @@ class FileCommandParser
 			end
 		end
 		#post
+		assert optionsIndex.is_a? Array
+		assert optionsGiven.is_a? Array
+		optionsGiven.each {|a| assert a.is_a? String}
 		assert valid?
 	end
 
