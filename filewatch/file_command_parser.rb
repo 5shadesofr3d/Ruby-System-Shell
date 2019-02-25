@@ -4,14 +4,18 @@ class FileCommandParser
 	attr_reader :monitor_type, :files, :command, :delay
 
 	def initialize(args)
+		#pre
 		assert args.is_a? Array
 		args.each { |a| assert a.is_a? String }
+
 		@args = args
 		@delay = 0
 		@command = []
 		@files = []
 		@monitor_type = nil
 		self.check_for_errors
+
+		#post
 		assert args.is_a? Array
 		args.each { |a| assert a.is_a? String }
 		assert @command.is_a? Array
@@ -83,6 +87,7 @@ class FileCommandParser
 				eval_option(optionsGiven[index], optionsIndex[index] + 1, optionsIndex[index + 1] - 1)
 			end
 		end
+
 		#post
 		assert optionsIndex.is_a? Array
 		assert optionsGiven.is_a? Array
@@ -91,9 +96,13 @@ class FileCommandParser
 	end
 
 	def eval_option(monitor_type, indexStart, indexFinish)
+		#pre
 		assert monitor_type.is_a? String
 		assert indexStart.is_a? Numeric
 		assert indexFinish.is_a? Numeric
+		assert @args.is_a? Array
+		@args.each {|a| assert a.is_a? String}
+
 		if monitor_type == "-f"
 			eval_files(indexStart, indexFinish)
 		elsif monitor_type == "-t"
@@ -113,11 +122,21 @@ class FileCommandParser
 		for i in indexStart... indexFinish + 1
 			@files += [@args[i]]
 		end
+
+		#post
+		assert @args.is_a? Array
+		@args.each {|a| assert a.is_a? String}
+		assert @files.is_a? Array
+		@files.each {|a| assert a.is_a? String}
 	end
 
 	def eval_delay(indexStart, indexFinish)
+		#pre
 		assert indexStart.is_a? Numeric
 		assert indexFinish.is_a? Numeric
+		assert @args.is_a? Array
+		@args.each {|a| assert a.is_a? String}
+
 		# If multiple args given
 		unless indexFinish == indexStart
 			raise ArgumentError, "Only one argument should be passed after the -t option, when #{indexFinish - indexStart + 1} arguments were given"
@@ -132,15 +151,23 @@ class FileCommandParser
 		end
 
 		#post
+		assert @args.is_a? Array
+		@args.each {|a| assert a.is_a? String}
+		assert indexStart.is_a? Numeric
+		assert indexFinish.is_a? Numeric
 		assert @delay.is_a? Numeric
 		assert @delay >= 0
 	end
 
 
 	def eval_monitor_type(monitor_type, indexStart, indexFinish)
+		#pre
 		assert monitor_type.is_a? String
 		assert indexStart.is_a? Numeric
 		assert indexFinish.is_a? Numeric
+		assert @args.is_a? Array
+		@args.each {|a| assert a.is_a? String}
+
 		@monitor_type = monitor_type
 		# If no args given...
 		unless (indexFinish > indexStart - 1)
@@ -152,8 +179,14 @@ class FileCommandParser
 		for i in indexStart + 1... indexFinish + 1
 			@command[1] += @args[i] + " "
 		end
-	end
 
+		#post
+		assert @command.is_a? Array
+		@command.each {|a| assert a.is_a? String}
+		assert @monitor_type.is_a? String
+		assert indexStart.is_a? Numeric
+		assert indexFinish.is_a? Numeric
+	end
 end
 
 # #print ">>> "
