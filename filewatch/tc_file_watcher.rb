@@ -67,7 +67,9 @@ class TestArithmetic < Test::Unit::TestCase
   end
 
   def test_other_options
-
+    assert_raise ArgumentError do
+      file_watcher = FileWatcher.new(["-f", "file1", "-t", "3", "-c", "ls", "-e"])
+    end
   end
 
   def test_no_arguments
