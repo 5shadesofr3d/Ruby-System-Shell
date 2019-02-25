@@ -84,7 +84,7 @@ class FileWatcher
 		assert @observers.is_a? Array
 		@observers.each {|o| assert o.is_a? Observer}
 		assert @alteration.is_a? String
-		assert @command.isa String
+		assert @command.is_a? String
 		assert @delay.is_a? Numeric
 		assert @delay >= 0
 
@@ -105,7 +105,6 @@ class FileWatcher
 		end
 
 		#post
-		assert valid?
 	end
 
 	def exec_command
