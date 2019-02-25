@@ -7,9 +7,8 @@ require_relative "monitor"
 
 class Shell
 	include Test::Unit::Assertions
-	include ShellCommands
 
-	@@MAX_NUM_PROCESS = 3
+	ENV["MAX_NUM_PROCESS"] = 3.to_s
 
 	def initialize
 		#Add command to hash map
@@ -20,7 +19,8 @@ class Shell
 		@commands = {
 			'fw' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/fw.rb", *a) },
 			'dp' => ForkCommand.new(nonblock = true) { |a| exec("ruby", "#{@initial_dir}/dp.rb", *a) },
-			'cd' => Command.new(nonblock = false) { |a| ShellCommands.cd(a) },
+			'cd' => Command.new { |a| ShellCommands.cd(*a) },
+			'envar' => Command.new { |a| ShellCommands.envar(*a) },
 			'monitor' => Command.new { @monitor.print_processes },
 			'exit' => Command.new { self.exit }
 		}
@@ -62,6 +62,10 @@ class Shell
 			}
 		end
 		return false
+	end
+
+	def MAX_NUM_PROCESS
+		return ENV["MAX_NUM_PROCESS"].to_i
 	end
 
 	def start
@@ -142,8 +146,8 @@ class Shell
 		assert to_call.is_a? Command
 
 		begin
-			if (to_call.is_a? ForkCommand) and (@@MAX_NUM_PROCESS <= @monitor.num_processes)
-				raise Exception, "Cannot run anymore processes as process count of #{@@MAX_NUM_PROCESS} has exceeded!"
+			if (to_call.is_a? ForkCommand) and (self.MAX_NUM_PROCESS <= @monitor.num_processes)
+				raise Exception, "Cannot run anymore processes without exceeding max processes count of #{self.MAX_NUM_PROCESS}"
 			end
 
 			id = to_call.execute(*args)
