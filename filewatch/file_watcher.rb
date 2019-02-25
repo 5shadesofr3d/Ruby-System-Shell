@@ -11,10 +11,11 @@ class FileWatcher
 		args.each { |a| assert a.is_a? String }
 
 		parser = FileCommandParser.new(args)
-		
+
 		@command = parser.command[0]
 		@args = parser.command[1]
 		@delay = parser.delay
+		@testing = false
 		alteration = parser.monitor_type
 
 		if alteration == "-d"
@@ -38,6 +39,18 @@ class FileWatcher
 		@observers.each {|o| assert o.is_a? Observer}
 		assert @alteration.is_a? String
 		assert valid?
+	end
+
+	def observers
+		return @observers
+	end
+
+	def testMode
+		@testing = true
+	end
+
+	def testing?
+		return @testing
 	end
 
 	def valid?
@@ -76,10 +89,17 @@ class FileWatcher
 		assert @delay >= 0
 
 		while true
+			if testing? and @observers.length == 0
+				@observers = true
+				break
+			end
 			for observer in @observers
 				if observer.send(@alteration)
 					puts "The file '#{observer.file}' was #{@alteration}... the command '#{@command}' will execute in #{@delay} milliseconds..."
-					Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
+					#Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
+					if testing?
+						@observers.delete(observer)
+					end
 				end
 			end
 		end
@@ -129,6 +149,16 @@ class Observer
 		assert @file.is_a? String
 
 		return @file
+	end
+
+	def exists
+		assert valid?
+		return @exists
+	end
+
+	def time_altered
+		assert valid?
+		return @time_altered
 	end
 
 	def valid?
