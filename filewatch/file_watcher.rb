@@ -6,8 +6,10 @@ require 'test/unit'
 class FileWatcher
 	include Test::Unit::Assertions
 	def initialize(args)
+		#pre
 		assert args.is_a? Array
 		args.each { |a| assert a.is_a? String }
+
 		parser = FileCommandParser.new(args)
 		
 		@command = parser.command[0]
@@ -27,6 +29,14 @@ class FileWatcher
 		end
 
 		@observers = self.create_observer(parser.files)
+
+		#post
+		assert @command.is_a? String
+		assert @delay.is_a? Numeric
+		assert @delay >= 0
+		assert @observers.is_a? Array
+		@observers.each {|o| assert o.is_a? Observer}
+		assert @alteration.is_a? String
 		assert valid?
 	end
 
@@ -43,10 +53,12 @@ class FileWatcher
 		#pre
 		assert files.is_a? Array
 		files.each { |f| assert f.is_a? String }
+
 		watchList = []
 		for file in files
 			watchList += [Observer.new(file)]
 		end
+
 		#post
 		assert watchList.is_a? Array
 		watchList.each { |f| assert f.is_a? Observer }
@@ -54,27 +66,43 @@ class FileWatcher
 	end
 
 	def watch
+		#pre
 		assert valid?
+		assert @observers.is_a? Array
+		@observers.each {|o| assert o.is_a? Observer}
+		assert @alteration.is_a? String
+		assert @command.isa String
+		assert @delay.is_a? Numeric
+		assert @delay >= 0
+
 		while true
 			for observer in @observers
 				if observer.send(@alteration)
 					puts "The file '#{observer.file}' was #{@alteration}... the command '#{@command}' will execute in #{@delay} milliseconds..."
 					Precision::timer_ms(@delay, ForkCommand.new { self.exec_command } )
 				end
-				assert valid? #check after each observation
 			end
 		end
+
+		#post
+		assert valid?
 	end
 
 	def exec_command
+		#pre
 		assert valid?
+		#assert (@args.is_a? String) || (@args.is_a? NIL) try this out when applicable tests exist
+		assert @command.is_a? String
+
 		if @args.is_a? String
 			exec(@command, @args)
 		else
 			exec(@command)
 		end
-	end
 
+		#post
+		assert valid?
+	end
 end
 
 
@@ -83,16 +111,23 @@ class Observer
 	def initialize(file)
 		#pre
 		assert file.is_a? String
+
 		@file = file
 		@time_altered = self.calculate_last_altered_time
 		@exists = self.calculate_file_exists
 
 		#post
+		assert @file.is_a? String
+		assert @time_altered.is_a? Time
+		assert (@exists == true || @exists == false)
 		assert valid?
 	end
 
 	def file
+		#pre
 		assert valid?
+		assert @file.is_a? String
+
 		return @file
 	end
 
@@ -105,23 +140,33 @@ class Observer
 
 	def calculate_last_altered_time
 		#dont assert class invariant as this is called during setup
+		# pre
+		assert @file.is_a? String
+
 		begin
 				aTime = File.stat(@file).atime
 			rescue
 				aTime = Time.new(0)
-			end
-			assert aTime.is_a? Time
-			return aTime
+		end
+
+		#post
+		assert aTime.is_a? Time
+		return aTime
 	end
 
 	def calculate_file_exists
 		#dont assert class invariant as this is called during setup
+		# pre
+		assert @file.is_a? String
+
 		doesFileExist = true
 		begin
 			File::Stat.new(@file)
 		rescue
 			doesFileExist = false
 		end
+
+		#post
 		assert (doesFileExist == true || doesFileExist == false)
 		return doesFileExist
 	end
@@ -129,9 +174,15 @@ class Observer
 	def file_created?
 		#pre
 		assert valid?
+		assert (@exists == true || @exists == false)
+
 		oldExistsStatus = @exists
 		@exists = self.calculate_file_exists
 
+		#post
+		assert (@exists == true || @exists == false)
+		assert (oldExistsStatus == true || oldExistsStatus == false)
+		assert valid?
 		if @exists and !oldExistsStatus
 			return true
 		end
@@ -139,10 +190,17 @@ class Observer
 	end
 
 	def file_destroyed?
+		#pre
 		assert valid?
+		assert (@exists == true || @exists == false)
+
 		oldExistsStatus = @exists
 		@exists = self.calculate_file_exists
 
+		#post
+		assert valid?
+		assert (@exists == true || @exists == false)
+		assert (oldExistsStatus == true || oldExistsStatus == false)
 		if !@exists and oldExistsStatus
 			return true
 		end
@@ -150,15 +208,22 @@ class Observer
 	end
 
 	def file_changed?
+		#pre
 		assert valid?
+		assert @time_altered.is_a? Time
+
 		oldTime = @time_altered
 		@time_altered = self.calculate_last_altered_time
 
-    	# No change
-	    if oldTime == @time_altered
-	    	return false
-	    else
-	    	return true
-	    end
+		#post
+		assert valid?
+		assert @time_altered.is_a? Time
+		assert oldTime.is_a? Time
+		# No change
+		if oldTime == @time_altered
+			return false
+		else
+			return true
+		end
 	end
 end
