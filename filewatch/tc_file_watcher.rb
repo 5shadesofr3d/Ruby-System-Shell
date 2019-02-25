@@ -288,56 +288,323 @@ class TestArithmetic < Test::Unit::TestCase
 
 		# File should be destroyed and observed
 		assert(file_watcher.observers == true)
-		
+
   end
 
-
   def test_a_file_creation
+		file_watcher = FileWatcher.new(["-f", "testFile", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
 
+		# File should not be created yet
+		assert(!file_watcher.observers[0].exists)
+
+		# Create file
+		system("touch testFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFile")
   end
 
   def test_a_folder_creation
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
 
+		# File should not be created yet
+		assert(!file_watcher.observers[0].exists)
+
+		# Create file
+		system("mkdir testFolder")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rmdir testFolder")
   end
 
-  def test_a_multiple_files
+  def test_a_multiple_files_created
+		file_watcher = FileWatcher.new(["-f", "testFolder", "testFile",  "-t", "3", "-a", "ls"])
+		file_watcher.testMode
 
+		# File and folder should not be created yet
+		assert(!file_watcher.observers[0].exists)
+		assert(!file_watcher.observers[1].exists)
+
+		# Create file
+		system("mkdir testFolder")
+		system("touch testFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rmdir testFolder")
+		system("rm testFile")
   end
 
   def test_a_file_destruction
+		# Create file
+		system("touch testFile")
 
+		file_watcher = FileWatcher.new(["-f", "testFile", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		system("rm testFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be destroyed and observed
+		assert(file_watcher.observers == true)
   end
 
   def test_a_folder_destruction
+		# Create file
+		system("mkdir testFolder")
+
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		system("rmdir testFolder")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be destroyed and observed
+		assert(file_watcher.observers == true)
+  end
+
+	def test_a_multiple_folders_destroyed
+		# Create file
+		system("mkdir testFolder")
+		system("touch testFile")
+
+		file_watcher = FileWatcher.new(["-f", "testFolder", "testFile", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+		assert(file_watcher.observers[1].exists)
+
+		system("rmdir testFolder")
+		system("rm testFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be destroyed and observed
+		assert(file_watcher.observers == true)
+	end
+
+  def test_a_nested_folder_creation
+		system("mkdir testFolder")
+
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Create nested
+		system("mkdir testFolder/nestedFolder")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rmdir testFolder/nestedFolder")
+		system("rmdir testFolder")
 
   end
 
-  def test_a_nested_folder_creation_and_destruction
+	def test_a_nested_folder_destruction
+		system("mkdir testFolder")
+		system("mkdir testFolder/nestedFolder")
 
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Delete nested
+		system("rmdir testFolder/nestedFolder")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rmdir testFolder")
   end
 
-  def test_a_nested_file_creation_and_destruction
+  def test_a_nested_file_creation
+		system("mkdir testFolder")
 
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Create nested
+		system("touch testFolder/nestedFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFolder/nestedFile")
+		system("rmdir testFolder")
+  end
+
+	def test_a_nested_file_destruction
+		system("mkdir testFolder")
+		system("touch testFolder/nestedFile")
+
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Delete nested
+		system("rm testFolder/nestedFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rmdir testFolder")
   end
 
   def test_a_file_modification
+		system("touch testFile")
 
+		file_watcher = FileWatcher.new(["-f", "testFile", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		system("echo 'testMessage' > testFile")
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be modified and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFile")
   end
 
   def test_a_file_rename
+		system("touch testFile")
 
+		file_watcher = FileWatcher.new(["-f", "testFile", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		system("mv testFile testFile2")
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be modified and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFile2")
   end
 
   def test_a_nested_file_modification
+		system("mkdir testFolder")
+		system("touch testFolder/nestedFile")
 
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Modify nested
+		system("echo 'test message' > testFolder/nestedFile")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFolder/nestedFile")
+		system("rmdir testFolder")
   end
 
   def test_a_nested_file_rename
+		system("mkdir testFolder")
+		system("touch testFolder/nestedFile")
 
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Modify nested
+		system("mv testFolder/nestedFile testFolder/nestedFile2")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFolder/nestedFile2")
+		system("rmdir testFolder")
   end
 
   def test_a_nested_folder_rename
+		system("mkdir testFolder")
+		system("touch testFolder/nestedFolder")
 
+		file_watcher = FileWatcher.new(["-f", "testFolder", "-t", "3", "-a", "ls"])
+		file_watcher.testMode
+
+		# File should be created
+		assert(file_watcher.observers[0].exists)
+
+		# Modify nested
+		system("mv testFolder/nestedFolder testFolder/nestedFolder2")
+
+		# Monitor for file change, because of test mode it will exit
+		file_watcher.watch
+
+		# File should be created and observed
+		assert(file_watcher.observers == true)
+
+		system("rm testFolder/nestedFolder2")
+		system("rmdir testFolder")
   end
 
 end
